@@ -35,5 +35,6 @@ namespace Crawler.Core.Downloader
         Page AfterDownloadPage(Page page , Site site );
 
         void SetCrawler(Crawler c);
+        Page Download(Request r);
     }
 }

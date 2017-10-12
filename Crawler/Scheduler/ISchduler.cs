@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Crawler.Core.Scheduler
 {
@@ -13,17 +14,14 @@ namespace Crawler.Core.Scheduler
         /// 向调试中心增加很多个地址
         /// </summary>
         /// <param name="urls"></param>
-        void AddUrls(IDisposable urls);
+        void AddUrls(IEnumerable<string> urls);
 
-        void GetNextUrl()
-        {
-            
-        }
 
-        /// <summary>
-        /// 处理结果
-        /// </summary>
-        /// <param name="resultItems">抽取出来的结果</param>
-        void Process(IDisposable resultItems);
+        Request GetNext();
+
+
+        void AddScanUrl(string url);
+        int Left { get; }
+      
     }
 }

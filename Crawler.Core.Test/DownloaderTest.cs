@@ -9,7 +9,7 @@ namespace Crawler.Core.Test
     public class DownloaderTest
     {
         [TestMethod]
-        public void download()
+        public void Download()
         {
             var k = new BaseDownloader();
             var s = new Site();
