@@ -17,7 +17,9 @@ namespace Crawler.Core
 
         public string Identity { get; private set; }
 
-        public Crawler(Config c)
+        public Config Config { get; private set; }
+
+        public Crawler()
         {
             
         }
@@ -33,6 +35,16 @@ namespace Crawler.Core
 
         }
 
+        public void Setup(Config c)
+        {
+            Config = c;
+
+            //设置调试器用到的变量
+            //Schduler.Bind(this);
+           // Processor.Config(c);
+           // Pipeline.Config(c);
+        }
+
         public void Run()
         {
             BeforeCrawl?.Invoke();
@@ -40,7 +52,7 @@ namespace Crawler.Core
             while (Schduler.Left>0)
             {
                 var r = Schduler.GetNext();
-                var p= Downloader.Download(r);
+                var p= Downloader.Download(r,Schduler);
                 Processor.Process(p);
                 Processor.SaveResults += Pipeline.Process;
             }

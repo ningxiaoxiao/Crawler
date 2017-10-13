@@ -1,21 +1,34 @@
-﻿using System.Collections;
+﻿using Crawler.Core.Scheduler;
+using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Crawler.Core.Scheduler.Tests
 {
+
     [TestClass()]
-    public class BaseSchdulerTests:BaseSchduler
+    public class BaseSchdulerTests : BaseSchduler
     {
         [TestMethod()]
         public void GetNextTest()
         {
-           Queue<string> a=new Queue<string>();
+           
+        }
 
-            a.
-            AddUrl("http://www.baidu.com");
+        [TestMethod()]
+        public void AddCookieTest()
+        {
 
-            Assert.AreEqual(Queue);
+            var s=new BaseSchdulerTests();
+            var c=new Crawler();
+            c.Setup(new Config(){Domains = new []{"www.baidu.com"}});
+            s.Bind(c);
+            s.AddCookie("hi","nihao");
+
+            var r = s.GetCookie("hi","www.baidu.com");
+
+            Assert.AreEqual(r,"nihao");
         }
     }
 

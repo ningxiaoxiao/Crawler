@@ -20,6 +20,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Net.Security;
 using System.Linq;
 using System.Net.Cache;
+using Crawler.Core;
 
 namespace DotNet.Utilities
 {
@@ -51,7 +52,8 @@ namespace DotNet.Utilities
         public HttpResult GetHtml(HttpItem item)
         {
             //返回参数
-            HttpResult result = new HttpResult();
+            var result = new Page();
+            result.Response = response;
             try
             {
                 //准备参数
@@ -327,7 +329,7 @@ namespace DotNet.Utilities
         {
             if (!string.IsNullOrEmpty(item.Cookie)) request.Headers[HttpRequestHeader.Cookie] = item.Cookie;
             //设置CookieCollection
-            if (item.ResultCookieType == ResultCookieType.CookieCollection)
+            //if (item.ResultCookieType == ResultCookieType.CookieCollection)
             {
                 request.CookieContainer = new CookieContainer();
                 if (item.CookieCollection != null && item.CookieCollection.Count > 0)
@@ -486,37 +488,26 @@ namespace DotNet.Utilities
         /// </summary>
         public string Accept { get; set; } = "text/html, application/xhtml+xml, */*";
 
-        string _ContentType = "text/html";
         /// <summary>
         /// 请求返回类型默认 text/html
         /// </summary>
-        public string ContentType
-        {
-            get { return _ContentType; }
-            set { _ContentType = value; }
-        }
-        string _UserAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
+        public string ContentType { get; set; } = "text/html";
+
         /// <summary>
         /// 客户端访问信息默认Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)
         /// </summary>
-        public string UserAgent
-        {
-            get { return _UserAgent; }
-            set { _UserAgent = value; }
-        }
+        public string UserAgent { get; set; } = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
+
         /// <summary>
         /// 返回数据编码默认为NUll,可以自动识别,一般为utf-8,gbk,gb2312
         /// </summary>
         public Encoding Encoding { get; set; }
-        private PostDataType _PostDataType = PostDataType.String;
+
         /// <summary>
         /// Post的数据类型
         /// </summary>
-        public PostDataType PostDataType
-        {
-            get { return _PostDataType; }
-            set { _PostDataType = value; }
-        }
+        public PostDataType PostDataType { get; set; } = PostDataType.String;
+
         /// <summary>
         /// Post请求时要发送的字符串Post数据
         /// </summary>
@@ -545,33 +536,22 @@ namespace DotNet.Utilities
         /// 设置代理对象，不想使用IE默认配置就设置为Null，而且不要设置ProxyIp
         /// </summary>
         public WebProxy WebProxy { get; set; }
-        private Boolean isToLower = false;
+
         /// <summary>
         /// 是否设置为全文小写，默认为不转化
         /// </summary>
-        public Boolean IsToLower
-        {
-            get { return isToLower; }
-            set { isToLower = value; }
-        }
-        private Boolean allowautoredirect = false;
+        public Boolean IsToLower { get; set; } = false;
+
         /// <summary>
         /// 支持跳转页面，查询结果将是跳转后的页面，默认是不跳转
         /// </summary>
-        public Boolean Allowautoredirect
-        {
-            get { return allowautoredirect; }
-            set { allowautoredirect = value; }
-        }
-        private int connectionlimit = 1024;
+        public Boolean Allowautoredirect { get; set; } = false;
+
         /// <summary>
         /// 最大连接数
         /// </summary>
-        public int Connectionlimit
-        {
-            get { return connectionlimit; }
-            set { connectionlimit = value; }
-        }
+        public int Connectionlimit { get; set; } = 1024;
+
         /// <summary>
         /// 代理Proxy 服务器用户名
         /// </summary>
@@ -584,37 +564,27 @@ namespace DotNet.Utilities
         /// 代理 服务IP,如果要使用IE代理就设置为ieproxy
         /// </summary>
         public string ProxyIp { get; set; }
-        private ResultType resulttype = ResultType.String;
+
         /// <summary>
         /// 设置返回类型String和Byte
         /// </summary>
-        public ResultType ResultType
-        {
-            get { return resulttype; }
-            set { resulttype = value; }
-        }
-        private WebHeaderCollection header = new WebHeaderCollection();
+        public ResultType ResultType { get; set; } = ResultType.String;
+
         /// <summary>
         /// header对象
         /// </summary>
-        public WebHeaderCollection Header
-        {
-            get { return header; }
-            set { header = value; }
-        }
+        public WebHeaderCollection Header { get; set; } = new WebHeaderCollection();
+
         /// <summary>
         //     获取或设置用于请求的 HTTP 版本。返回结果:用于请求的 HTTP 版本。默认为 System.Net.HttpVersion.Version11。
         /// </summary>
         public Version ProtocolVersion { get; set; }
-        private Boolean _expect100continue = false;
+
         /// <summary>
         ///  获取或设置一个 System.Boolean 值，该值确定是否使用 100-Continue 行为。如果 POST 请求需要 100-Continue 响应，则为 true；否则为 false。默认值为 true。
         /// </summary>
-        public Boolean Expect100Continue
-        {
-            get { return _expect100continue; }
-            set { _expect100continue = value; }
-        }
+        public Boolean Expect100Continue { get; set; } = false;
+
         /// <summary>
         /// 设置509证书集合
         /// </summary>
@@ -623,24 +593,17 @@ namespace DotNet.Utilities
         /// 设置或获取Post参数编码,默认的为Default编码
         /// </summary>
         public Encoding PostEncoding { get; set; }
-        private ResultCookieType _ResultCookieType = ResultCookieType.String;
+
         /// <summary>
         /// Cookie返回类型,默认的是只返回字符串类型
         /// </summary>
-        public ResultCookieType ResultCookieType
-        {
-            get { return _ResultCookieType; }
-            set { _ResultCookieType = value; }
-        }
-        private ICredentials _ICredentials = CredentialCache.DefaultCredentials;
+        public ResultCookieType ResultCookieType { get; set; } = ResultCookieType.String;
+
         /// <summary>
         /// 获取或设置请求的身份验证信息。
         /// </summary>
-        public ICredentials ICredentials
-        {
-            get { return _ICredentials; }
-            set { _ICredentials = value; }
-        }
+        public ICredentials ICredentials { get; set; } = CredentialCache.DefaultCredentials;
+
         /// <summary>
         /// 设置请求将跟随的重定向的最大数目
         /// </summary>
@@ -652,18 +615,15 @@ namespace DotNet.Utilities
         public DateTime? IfModifiedSince { get; set; } = null;
 
         #region ip-port
-        private IPEndPoint _IPEndPoint = null;
+
         /// <summary>
         /// 设置本地的出口ip和端口
         /// </summary>]
         /// <example>
         ///item.IPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.1.1"),80);
         /// </example>
-        public IPEndPoint IPEndPoint
-        {
-            get { return _IPEndPoint; }
-            set { _IPEndPoint = value; }
-        }
+        public IPEndPoint IPEndPoint { get; set; } = null;
+
         #endregion
     }
     /// <summary>
@@ -736,6 +696,29 @@ namespace DotNet.Utilities
                 return string.Empty;
             }
         }
+
+        /// <summary>
+        /// 当前网页的内容. 通过自动JS渲染的网页, page.raw是JS渲染后的网页内容
+        /// </summary>
+        public string Raw => Html;
+        /// <summary>
+        /// 请求page网页时使用的请求参数等数据
+        /// </summary>
+        Request Request { get; }
+        /// <summary>
+        /// 请求page网页返回的响应信息
+        /// </summary>
+        System.Net.HttpWebResponse Response { get; }
+        /// <summary>
+        /// 当前网页的附加数据, 是开发者自定义的一段代码, 例如, HTML代码.
+        /// </summary>
+        string contextData { get; }
+
+        /// <summary>
+        /// 只能在afterExtractField回调函数中使用, 用来过滤抽取项中不需要的抽取结果, 被过滤的抽取结果不会被保存到数据库中
+        /// </summary>
+        /// <param name="fieldName">要过滤的抽取项名字, 必须是包含不需要的抽取结果的对象数组, String类型, 可不填, 无默认值. 如果不传入参数, 表示过滤当前网页的所有抽取结果; 如果传入参数, 表示过滤该抽取项的当前抽取结果</param>
+        void Skip(string fieldName = null) { }
     }
     /// <summary>
     /// 返回类型
@@ -783,5 +766,6 @@ namespace DotNet.Utilities
         /// </summary>
         CookieCollection
     }
+    
     #endregion
 }

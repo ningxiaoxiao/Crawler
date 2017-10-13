@@ -9,5 +9,6 @@ namespace Crawler.Core.Processor
         
         void Process(Page page);
         event ResultDelegate SaveResults;
+        void Config(Config config);
     }
 }

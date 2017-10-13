@@ -15,11 +15,7 @@ namespace Crawler.Core.Tests
         [TestMethod()]
         public void RunTest()
         {
-            var config = new Config {Fields = new[] {new Field(){Name="aaa"},}};
-            var c=new Crawler("http://www.douyu.com","a",new BaseDownloader(), );
-
-
-            Assert.Fail();
+           
         }
     }
 }

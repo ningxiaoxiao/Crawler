@@ -3,20 +3,28 @@ using System.Text.RegularExpressions;
 
 namespace Crawler.Core
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class Config
     {
-        public string Domains { get;  set; }
-        public string ScanUrls { get;  set; }
-        public Regex ContentUrlRegexes { get; set ;}
-        public Regex HelperUrlRegexes { get;  set; }
-        public Field[] Fields { get;  set; }
+        public const string UserAgentAndroid = "";
+        public const string UserAgentIos = "";
+        public const string UserAgentComputer = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
+        public const string UserAgentMobile = "";
+
+        public string[] Domains { get; set; } 
+        public string ScanUrls { get; set; }
+        public Regex ContentUrlRegexes { get; set; }
+        public Regex HelperUrlRegexes { get; set; }
+        public Field[] Fields { get; set; }
         /// <summary>
         /// 间隔 秒
         /// </summary>
         public int Interval { get; set; } = 1800;
         public bool EnableJs => true;
         public int Timeout { get; set; } = 1000;
-        public string UserAgent { get; set; }
+        public string UserAgent { get; set; } 
         public bool ChangeProxyEveryPage => false;
         /// <summary>
         /// 单个HTTP请求失败时, 可自动重试. 通过tryTimes设置单个HTTP请求的最多重复请求次数
@@ -29,7 +37,6 @@ namespace Crawler.Core
         /// 默认值是false, 神箭手应用会按顺序依次爬取待爬队列中的url, 包括helperUrl, contentUrl和scanUrl
         /// </summary>
         public bool EntriesFirst { get; set; } = false;
-
     }
 
     public class Field
@@ -37,15 +44,15 @@ namespace Crawler.Core
         /// <summary>
         /// 给抽取项起个名字
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
         /// <summary>
         /// 给抽取项起个别名(建议用汉字)
         /// </summary>
-        public string Alias { get; private set; }
+        public string Alias { get; set; }
         /// <summary>
         /// 设置抽取规则的类型  默认值是SelectorType.XPath
         /// </summary>
-        public SelectorType Selectortype { get; set; }=SelectorType.XPath;
+        public SelectorType Selectortype { get; set; } = SelectorType.XPath;
         /// <summary>
         /// 定义抽取规则
         /// </summary>
@@ -55,12 +62,12 @@ namespace Crawler.Core
         /// 默认值是false
         /// 值设为true, 表示如果抽取项的值为空, 则该条爬取结果会被过滤掉, 不会存入数据库中
         /// </summary>
-        public bool Required { get;  set; } = false;
+        public bool Required { get; set; } = false;
         /// <summary>
         /// 设置抽取项中每条抽取结果的数据类型
         /// 默认值是string类型
         /// </summary>
-        public Type Type { get;  set; } = typeof(string);
+        public Type Type { get; set; } = typeof(string);
         /// <summary>
         /// 设置抽取项是否是临时的(临时的抽取项不会保存到爬取结果中)
         /// </summary>
@@ -71,7 +78,7 @@ namespace Crawler.Core
         /// 不仅可以使抽取项从当前内容页的网页内容中抽取数据, 
         /// 还可以从”异步请求返回的数据”或”内容页附加数据”中抽取数据
         /// </summary>
-        public SourceType SourceType { get; set; }=SourceType.Page;
+        public SourceType SourceType { get; set; } = SourceType.Page;
         /// <summary>
         /// 设置抽取项的子抽取项
         /// </summary>
@@ -102,14 +109,4 @@ namespace Crawler.Core
         AttachedUrl,//后可以发起一个新的HTTP请求, 然后从HTTP请求返回的数据中抽取数据
         UrlContext,//表示从内容页附加数据中抽取数据 内容页附加数据, 可以是任意一段字符串, 例如, HTML代码. 一般用法是, 将列表页中的数据附加到内容页中, 以便在抽取内容页数据时, 可以从中抽取列表页中的数据.
     }
-
-    public struct UserAgent
-    {
-        public const string Android = "";
-        public const string Ios = "";
-        public const string Computer = "";
-        public const string Mobile = "";
-
-    }
-
 }

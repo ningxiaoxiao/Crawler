@@ -7,6 +7,6 @@ namespace Crawler.Core
     /// </summary>
     public class Request:HttpItem
     {
-         
+        public int TryTimes { get; set; } = 0;
     }
 }
