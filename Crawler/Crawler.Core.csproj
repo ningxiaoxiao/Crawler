@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Config.cs" />
     <Compile Include="Crawler.cs" />
     <Compile Include="Downloader\BaseDownloader.cs" />
     <Compile Include="Downloader\HttpCookieHelper.cs" />

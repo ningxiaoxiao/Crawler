@@ -455,55 +455,37 @@ namespace DotNet.Utilities
         /// 请求URL必须填写
         /// </summary>
         public string URL { get; set; }
-        string _Method = "GET";
+
         /// <summary>
         /// 请求方式默认为GET方式,当为POST方式时必须设置Postdata的值
         /// </summary>
-        public string Method
-        {
-            get { return _Method; }
-            set { _Method = value; }
-        }
-        int _Timeout = 100000;
+        public string Method { get; set; } = "GET";
+
         /// <summary>
         /// 默认请求超时时间
         /// </summary>
-        public int Timeout
-        {
-            get { return _Timeout; }
-            set { _Timeout = value; }
-        }
-        int _ReadWriteTimeout = 30000;
+        public int Timeout { get; set; } = 100000;
+
         /// <summary>
         /// 默认写入Post数据超时间
         /// </summary>
-        public int ReadWriteTimeout
-        {
-            get { return _ReadWriteTimeout; }
-            set { _ReadWriteTimeout = value; }
-        }
+        public int ReadWriteTimeout { get; set; } = 30000;
+
         /// <summary>
         /// 设置Host的标头信息
         /// </summary>
         public string Host { get; set; }
-        Boolean _KeepAlive = true;
+
         /// <summary>
         ///  获取或设置一个值，该值指示是否与 Internet 资源建立持久性连接默认为true。
         /// </summary>
-        public Boolean KeepAlive
-        {
-            get { return _KeepAlive; }
-            set { _KeepAlive = value; }
-        }
-        string _Accept = "text/html, application/xhtml+xml, */*";
+        public Boolean KeepAlive { get; set; } = true;
+
         /// <summary>
         /// 请求标头值 默认为text/html, application/xhtml+xml, */*
         /// </summary>
-        public string Accept
-        {
-            get { return _Accept; }
-            set { _Accept = value; }
-        }
+        public string Accept { get; set; } = "text/html, application/xhtml+xml, */*";
+
         string _ContentType = "text/html";
         /// <summary>
         /// 请求返回类型默认 text/html
@@ -663,15 +645,12 @@ namespace DotNet.Utilities
         /// 设置请求将跟随的重定向的最大数目
         /// </summary>
         public int MaximumAutomaticRedirections { get; set; }
-        private DateTime? _IfModifiedSince = null;
+
         /// <summary>
         /// 获取和设置IfModifiedSince，默认为当前日期和时间
         /// </summary>
-        public DateTime? IfModifiedSince
-        {
-            get { return _IfModifiedSince; }
-            set { _IfModifiedSince = value; }
-        }
+        public DateTime? IfModifiedSince { get; set; } = null;
+
         #region ip-port
         private IPEndPoint _IPEndPoint = null;
         /// <summary>
@@ -700,15 +679,12 @@ namespace DotNet.Utilities
         /// Cookie对象集合
         /// </summary>
         public CookieCollection CookieCollection { get; set; }
-        private string _html = string.Empty;
+
         /// <summary>
         /// 返回的String类型数据 只有ResultType.String时才返回数据，其它情况为空
         /// </summary>
-        public string Html
-        {
-            get { return _html; }
-            set { _html = value; }
-        }
+        public string Html { get; set; } = string.Empty;
+
         /// <summary>
         /// 返回的Byte数组 只有ResultType.Byte时才返回数据，其它情况为空
         /// </summary>

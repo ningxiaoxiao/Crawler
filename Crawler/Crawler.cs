@@ -17,6 +17,11 @@ namespace Crawler.Core
 
         public string Identity { get; private set; }
 
+        public Crawler(Config c)
+        {
+            
+        }
+
         public Crawler(string url,string identity, IDownloader downloader,IPipeline pipeline,IProcessor processor,ISchduler schduler)
         {
             Identity = identity;
