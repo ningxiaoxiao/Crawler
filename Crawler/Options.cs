@@ -67,7 +67,6 @@ namespace Crawler.Core
         /// <summary>
         /// HTTP请求时是否自动JS渲染, 布尔类型, 可不填, 默认值是false
         /// </summary>
-
         [Obsolete("未实现,不可用")]
         public bool EnableJs { get; set; } = false;
         /// <summary>

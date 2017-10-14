@@ -1,4 +1,5 @@
-﻿using DotNet.Utilities;
+﻿using System.Collections.Generic;
+using Crawler.Core.Downloader;
 
 namespace Crawler.Core
 {
@@ -24,10 +25,20 @@ namespace Crawler.Core
         /// </summary>
         public string contextData { get; set; }
 
+        public Dictionary<string,string> Results { get; set; } = new Dictionary<string, string>();
+
+        /// <summary>
+        /// 跳过抽取
+        /// </summary>
+        public bool SkipExtractField { get; set; } = false;
+
         /// <summary>
         /// 只能在afterExtractField回调函数中使用, 用来过滤抽取项中不需要的抽取结果, 被过滤的抽取结果不会被保存到数据库中
         /// </summary>
-        /// <param name="fieldName">要过滤的抽取项名字, 必须是包含不需要的抽取结果的对象数组, String类型, 可不填, 无默认值. 如果不传入参数, 表示过滤当前网页的所有抽取结果; 如果传入参数, 表示过滤该抽取项的当前抽取结果</param>
+        /// <param name="fieldName">要过滤的抽取项名字, 
+        /// 必须是包含不需要的抽取结果的对象数组, String类型, 可不填, 无默认值. 
+        /// 如果不传入参数, 表示过滤当前网页的所有抽取结果; 
+        /// 如果传入参数, 表示过滤该抽取项的当前抽取结果</param>
         public void Skip(string fieldName = null) { }
     }
 }

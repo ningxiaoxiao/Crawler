@@ -1,21 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using NLog;
 
 namespace Crawler.Core.Scheduler
 {
     public abstract class BaseSchduler : ISchduler
     {
-
+        public Logger Logger => Crawler.Logger;
 
         private readonly Queue<Request> _queue = new Queue<Request>();
 
-        public Crawler Crawler { get; private set; }
 
 
         public Request GetNext()
         {
-            return _queue.Dequeue();
+            var r = _queue.Dequeue();
+            Logger.Info($"{r.URL} 出队");
+            return r;
         }
 
         public void AddScanUrl(string url)
@@ -24,10 +26,8 @@ namespace Crawler.Core.Scheduler
         }
 
         public int Left => _queue.Count;
-        public void Bind(Crawler c)
-        {
-            Crawler = c;
-        }
+        public Config Config { get; set; }
+
         /// <summary>
         /// 全局使用的头
         /// </summary>
@@ -41,6 +41,7 @@ namespace Crawler.Core.Scheduler
 
         public void AddCookie(CookieCollection cc)
         {
+            if (cc.Count == 0) return;
             _cookies.Add(cc);
         }
 
@@ -48,20 +49,18 @@ namespace Crawler.Core.Scheduler
         public void AddCookie(string key, string value, string domain = null)
         {
             if (domain == null)
-                foreach (var d in Crawler.Config.Domains)
+                foreach (var d in Config.Domains)
                 {
                     _cookies.Add(new Cookie(key, value, "/", d));
                 }
             else
                 _cookies.Add(new Cookie(key, value, "/", domain));
 
-
-
         }
 
         public string GetCookie(string name, string domain)
         {
-            var cs = _cookies.GetCookies(new Uri("http://"+domain));
+            var cs = _cookies.GetCookies(new Uri("http://" + domain));
             return cs[name].Value;
         }
 
@@ -72,26 +71,23 @@ namespace Crawler.Core.Scheduler
                 options = new Options();//使用默认值
             }
 
-            var r = new Request
+            var r = new Request(this);
+            r.Method = options.Method;
+            r.URL = url;
+            r.Postdata = options.Data;
+            r.UserAgent = Config.UserAgent;
+            r.Timeout = Config.Timeout;
+            r.Postdata = options.Data;
+            r.Header = new WebHeaderCollection
             {
-                Method = options.Method,
-                URL = url,
-                UserAgent = Crawler.Config.UserAgent,
-                Timeout = Crawler.Config.Timeout,
-                Postdata = options.Data,
-                Header = new WebHeaderCollection
-                {
-                    _headers,
-                    options.Headers
-                },
-                CookieCollection = _cookies.GetCookies(new Uri(url)),
-
-
+                _headers,
+                options.Headers
             };
-
+            r.CookieCollection = _cookies.GetCookies(new Uri(url));
 
 
             _queue.Enqueue(r);
+            Logger.Info($"{url} 入队");
         }
 
         public void AddUrls(IEnumerable<string> urls, Options os = null)
@@ -104,7 +100,7 @@ namespace Crawler.Core.Scheduler
 
         public void AddScanUrl(string url, Options options = null)
         {
-            throw new NotImplementedException();
+            AddUrl(url, options);
         }
 
         public string RequestUrl(string url, Options options = null)
@@ -121,5 +117,10 @@ namespace Crawler.Core.Scheduler
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class DefaultSchduler : BaseSchduler
+    {
+
     }
 }

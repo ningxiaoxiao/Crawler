@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
+using NLog;
 
 namespace Crawler.Core.Scheduler
 {
     public interface ISchduler
     {
-        Crawler Crawler { get; }
         Request GetNext();
-        
+
+        Logger Logger { get; }
         int Left { get; }
+        Config Config { get; set; }
         
-        void Bind(Crawler crawler);
 
         /// <summary>
         /// 一般在beforeCrawl回调函数中调用, 用来给的所有HTTP请求添加一个Header

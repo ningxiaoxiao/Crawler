@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2002
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler.Core", "Crawler\Crawler.Core.csproj", "{2F97C354-D163-418A-8380-71101FE46F96}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler.Core.Test", "Crawler.Core.Test\Crawler.Core.Test.csproj", "{1B4F40BA-A7A7-4442-8C90-3084C32202DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Crawler.Core.Sample", "Crawler.Core.Sample\Crawler.Core.Sample.csproj", "{1DBB791C-D2C1-494D-956F-F42791D6781C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{1B4F40BA-A7A7-4442-8C90-3084C32202DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B4F40BA-A7A7-4442-8C90-3084C32202DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B4F40BA-A7A7-4442-8C90-3084C32202DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DBB791C-D2C1-494D-956F-F42791D6781C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DBB791C-D2C1-494D-956F-F42791D6781C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DBB791C-D2C1-494D-956F-F42791D6781C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DBB791C-D2C1-494D-956F-F42791D6781C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

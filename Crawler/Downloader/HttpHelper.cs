@@ -9,20 +9,18 @@
 /// 修改日期：2017-01-16
 /// 版 本 号：1.8
 /// </summary>
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Net;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.IO.Compression;
-using System.Security.Cryptography.X509Certificates;
-using System.Net.Security;
-using System.Linq;
-using System.Net.Cache;
-using Crawler.Core;
 
-namespace DotNet.Utilities
+using System;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.RegularExpressions;
+
+namespace Crawler.Core.Downloader
 {
     /// <summary>
     /// Http连接操作帮助类
@@ -52,14 +50,13 @@ namespace DotNet.Utilities
         public HttpResult GetHtml(HttpItem item)
         {
             //返回参数
-            var result = new Page();
-            result.Response = response;
+            var result = new Page ();
             try
             {
                 //准备参数
                 SetRequest(item);
-                
-                
+
+
             }
             catch (Exception ex)
             {
@@ -69,19 +66,19 @@ namespace DotNet.Utilities
             try
             {
                 //请求数据
-                using (response = (HttpWebResponse)request.GetResponse())
-                {
-                    GetData(item, result);
-                }
+                response = (HttpWebResponse)request.GetResponse();
+
+                GetData(item, result);
+
             }
             catch (WebException ex)
             {
                 if (ex.Response != null)
                 {
-                    using (response = (HttpWebResponse)ex.Response)
-                    {
-                        GetData(item, result);
-                    }
+                    response = (HttpWebResponse)ex.Response;
+
+                    GetData(item, result);
+
                 }
                 else
                 {
@@ -93,6 +90,7 @@ namespace DotNet.Utilities
                 result.Html = ex.Message;
             }
             if (item.IsToLower) result.Html = result.Html.ToLower();
+            result.Response = response;
             return result;
         }
         #endregion
@@ -329,7 +327,7 @@ namespace DotNet.Utilities
         {
             if (!string.IsNullOrEmpty(item.Cookie)) request.Headers[HttpRequestHeader.Cookie] = item.Cookie;
             //设置CookieCollection
-            //if (item.ResultCookieType == ResultCookieType.CookieCollection)
+            if (item.ResultCookieType == ResultCookieType.CookieCollection)
             {
                 request.CookieContainer = new CookieContainer();
                 if (item.CookieCollection != null && item.CookieCollection.Count > 0)
@@ -517,6 +515,11 @@ namespace DotNet.Utilities
         /// </summary>
         public byte[] PostdataByte { get; set; }
         /// <summary>
+        /// Cookie返回类型,默认的是只返回字符串类型
+        /// </summary>
+        public ResultCookieType ResultCookieType { get; set; } = ResultCookieType.CookieCollection;
+
+        /// <summary>
         /// Cookie对象集合
         /// </summary>
         public CookieCollection CookieCollection { get; set; }
@@ -593,11 +596,6 @@ namespace DotNet.Utilities
         /// 设置或获取Post参数编码,默认的为Default编码
         /// </summary>
         public Encoding PostEncoding { get; set; }
-
-        /// <summary>
-        /// Cookie返回类型,默认的是只返回字符串类型
-        /// </summary>
-        public ResultCookieType ResultCookieType { get; set; } = ResultCookieType.String;
 
         /// <summary>
         /// 获取或设置请求的身份验证信息。
@@ -678,7 +676,7 @@ namespace DotNet.Utilities
                     {
                         if (Header.AllKeys.Any(k => k.ToLower().Contains("location")))
                         {
-                            string baseurl = Header["location"].ToString().Trim();
+                            string baseurl = Header["location"].Trim();
                             string locationurl = baseurl.ToLower();
                             if (!string.IsNullOrWhiteSpace(locationurl))
                             {
@@ -697,28 +695,6 @@ namespace DotNet.Utilities
             }
         }
 
-        /// <summary>
-        /// 当前网页的内容. 通过自动JS渲染的网页, page.raw是JS渲染后的网页内容
-        /// </summary>
-        public string Raw => Html;
-        /// <summary>
-        /// 请求page网页时使用的请求参数等数据
-        /// </summary>
-        Request Request { get; }
-        /// <summary>
-        /// 请求page网页返回的响应信息
-        /// </summary>
-        System.Net.HttpWebResponse Response { get; }
-        /// <summary>
-        /// 当前网页的附加数据, 是开发者自定义的一段代码, 例如, HTML代码.
-        /// </summary>
-        string contextData { get; }
-
-        /// <summary>
-        /// 只能在afterExtractField回调函数中使用, 用来过滤抽取项中不需要的抽取结果, 被过滤的抽取结果不会被保存到数据库中
-        /// </summary>
-        /// <param name="fieldName">要过滤的抽取项名字, 必须是包含不需要的抽取结果的对象数组, String类型, 可不填, 无默认值. 如果不传入参数, 表示过滤当前网页的所有抽取结果; 如果传入参数, 表示过滤该抽取项的当前抽取结果</param>
-        void Skip(string fieldName = null) { }
     }
     /// <summary>
     /// 返回类型
@@ -766,6 +742,6 @@ namespace DotNet.Utilities
         /// </summary>
         CookieCollection
     }
-    
+
     #endregion
 }

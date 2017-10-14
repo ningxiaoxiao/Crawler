@@ -1,21 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Crawler.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Crawler.Core.Downloader;
+﻿using System.Text.RegularExpressions;
 
-namespace Crawler.Core.Tests
+namespace Crawler.Core.Sample
 {
-    [TestClass()]
-    public class CrawlerTests
+    class Program
     {
-        [TestMethod()]
-        public void RunTest()
+        static void Main(string[] args)
         {
+
             var c = new Config
             {
                 ScanUrls = "https://www.douyu.com/directory/all?page=1&isAjax=1",
@@ -49,22 +40,22 @@ namespace Crawler.Core.Tests
                 Interval = 0
             };
 
-            var crawler=new Crawler();
+            var crawler = new Crawler();
 
             crawler.Setup(c);
 
             crawler.Processor.OnProcessScanPage = p =>
             {
-                var r=new Regex("data-rid=\'([1-9]*)\'");
+                var r = new Regex("\" data-rid=\'([1-9]*)\'");
                 var ms = r.Matches(p.Raw);
                 foreach (Match m in ms)
                 {
                     crawler.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value);
                 }
+                p.SkipExtractField = true;
             };
 
             crawler.Run();
         }
     }
 }
-

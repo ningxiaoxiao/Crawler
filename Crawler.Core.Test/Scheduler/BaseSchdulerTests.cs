@@ -23,7 +23,6 @@ namespace Crawler.Core.Scheduler.Tests
             var s=new BaseSchdulerTests();
             var c=new Crawler();
             c.Setup(new Config(){Domains = new []{"www.baidu.com"}});
-            s.Bind(c);
             s.AddCookie("hi","nihao");
 
             var r = s.GetCookie("hi","www.baidu.com");
