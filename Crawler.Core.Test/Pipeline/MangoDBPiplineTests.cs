@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Crawler.Core.Processor;
 
 namespace Crawler.Core.Pipeline.Tests
 {
@@ -17,7 +18,7 @@ namespace Crawler.Core.Pipeline.Tests
 
             var p=new MangoDBPipline();
             var page=new Page();
-            page.Results.Add("name","ningxiaoxiao");
+            page.Results.Add(new Result("name","ningxiaoxiao"));
             p.Handle(page);
 
 

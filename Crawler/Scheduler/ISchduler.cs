@@ -12,7 +12,7 @@ namespace Crawler.Core.Scheduler
         Logger Logger { get; }
         int Left { get; }
         Config Config { get; set; }
-        
+
 
         /// <summary>
         /// 一般在beforeCrawl回调函数中调用, 用来给的所有HTTP请求添加一个Header
@@ -42,14 +42,14 @@ namespace Crawler.Core.Scheduler
         /// </summary>
         /// <param name="url">待添加的网页url, String类型, 必填项, 无默认值</param>
         /// <param name="options">网页url的请求参数等设置, JS对象, 可不填, 无默认值. 成员包括: Method, Data, ContextData, Headers, Reserve, NoProxy, Charset, Events, DupValue, EnableJs, IgnoreCookies, UrlEncodeData</param>
-        void AddUrl(string url, Options options = null);
+        void AddUrl(string url, int deth = 0, Options options = null);
 
         /// <summary>
         /// 向调试中心增加很多个地址
         /// </summary>
         /// <param name="urls"></param>
         /// <param name="options"></param>
-        void AddUrls(IEnumerable<string> urls, Options options = null);
+        void AddUrls(IEnumerable<string> urls, int deth = 0, Options options = null);
 
         /// <summary>
         /// 一般在beforeCrawl回调函数中调用, 用来添加入口页url

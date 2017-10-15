@@ -11,21 +11,38 @@ namespace Crawler.Core.Scheduler
 
         private readonly Queue<Request> _queue = new Queue<Request>();
 
-
+        private static readonly object _lock = new object();
 
         public Request GetNext()
         {
-            var r = _queue.Dequeue();
-            Logger.Info($"{r.URL} 出队");
-            return r;
+            lock (_lock)
+            {
+                try
+                {
+                    var r = _queue.Dequeue();
+                    Logger.Info($"{r.URL} 出队 剩余:{_queue.Count}");
+                    return r;
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
+
+            }
+
         }
 
-        public void AddScanUrl(string url)
+        public int Left
         {
-            throw new NotImplementedException();
+            get
+            {
+                lock (_lock)
+                {
+                    return _queue.Count;
+                }
+            }
         }
 
-        public int Left => _queue.Count;
         public Config Config { get; set; }
 
         /// <summary>
@@ -41,8 +58,12 @@ namespace Crawler.Core.Scheduler
 
         public void AddCookie(CookieCollection cc)
         {
-            if (cc.Count == 0) return;
-            _cookies.Add(cc);
+            lock (_lock)
+            {
+                if (cc.Count == 0) return;
+                _cookies.Add(cc);
+            }
+
         }
 
         private readonly CookieContainer _cookies = new CookieContainer();
@@ -64,43 +85,71 @@ namespace Crawler.Core.Scheduler
             return cs[name].Value;
         }
 
-        public void AddUrl(string url, Options options = null)
+        public void AddUrl(string url, int deth = 0, Options options = null)
         {
-            if (options == null)
+            lock (_lock)
             {
-                options = new Options();//使用默认值
+                var domainchcke = false;
+                foreach (var domain in Config.Domains)
+                {
+                    domainchcke = url.Contains(domain);
+                    if (domainchcke)
+                        break;
+
+                }
+
+                //过滤不合法域
+                if (!domainchcke)
+                {
+                    Logger.Warn($"{url} 入队失败,不合法域");
+                    return;
+                }
+
+
+                if (options == null)
+                {
+                    options = new Options();//使用默认值
+                }
+
+
+                var r = new Request(this);
+                r.Method = options.Method;
+                r.URL = url;
+                r.Deth = deth;
+                r.Postdata = options.Data;
+                r.UserAgent = Config.UserAgent;
+                r.Timeout = Config.Timeout;
+                r.Postdata = options.Data;
+                r.Header = new WebHeaderCollection
+                {
+                    _headers,
+                    options.Headers
+                };
+                r.CookieCollection = _cookies.GetCookies(new Uri(url));
+                //去重
+                if (_queue.Contains(r))
+                {
+                    Logger.Warn($"{url} 入队失败,重复");
+                }
+                else
+                {
+                    _queue.Enqueue(r);
+                    Logger.Info($"{url} 入队 剩余:{_queue.Count}");
+                }
             }
-
-            var r = new Request(this);
-            r.Method = options.Method;
-            r.URL = url;
-            r.Postdata = options.Data;
-            r.UserAgent = Config.UserAgent;
-            r.Timeout = Config.Timeout;
-            r.Postdata = options.Data;
-            r.Header = new WebHeaderCollection
-            {
-                _headers,
-                options.Headers
-            };
-            r.CookieCollection = _cookies.GetCookies(new Uri(url));
-
-
-            _queue.Enqueue(r);
-            Logger.Info($"{url} 入队");
         }
 
-        public void AddUrls(IEnumerable<string> urls, Options os = null)
+        public void AddUrls(IEnumerable<string> urls, int deth=0, Options os = null)
         {
             foreach (var u in urls)
             {
-                AddUrl(u, os);
+                AddUrl(u,deth, os);
             }
         }
 
         public void AddScanUrl(string url, Options options = null)
         {
-            AddUrl(url, options);
+            AddUrl(url,0, options);
         }
 
         public string RequestUrl(string url, Options options = null)
@@ -123,4 +172,5 @@ namespace Crawler.Core.Scheduler
     {
 
     }
+
 }

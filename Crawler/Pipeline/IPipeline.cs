@@ -33,8 +33,15 @@ namespace Crawler.Core.Pipeline
         }
         public override void Handle(Page p)
         {
-            var doc = new BsonDocument(p.Results);
-            _collection.InsertOne(doc);
+            if (p.Results.Count == 0) return;
+            var doc = new BsonDocument();
+            foreach (var r in p.Results)
+            {
+                if (!r.Skip)
+                    doc.Add(r.Key, r.Value);
+            }
+            if (doc.ElementCount > 0)
+                _collection.InsertOne(doc);
         }
     }
 }

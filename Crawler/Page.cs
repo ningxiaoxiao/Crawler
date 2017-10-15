@@ -1,13 +1,21 @@
 ﻿using System.Collections.Generic;
 using Crawler.Core.Downloader;
+using Crawler.Core.Processor;
 
 namespace Crawler.Core
 {
     /// <summary>
     /// 表示当前正在爬取的网页对象
     /// </summary>
-    public class Page:HttpResult
+    public class Page : HttpResult
     {
+        public Page() { }
+
+        public Page(HttpResult r)
+        {
+            Html = r.Html;
+        }
+
         /// <summary>
         /// 当前网页的内容. 通过自动JS渲染的网页, page.raw是JS渲染后的网页内容
         /// </summary>
@@ -15,7 +23,7 @@ namespace Crawler.Core
         /// <summary>
         /// 请求page网页时使用的请求参数等数据
         /// </summary>
-        public Request Request { get;set ;}
+        public Request Request { get; set; }
         /// <summary>
         /// 请求page网页返回的响应信息
         /// </summary>
@@ -25,13 +33,18 @@ namespace Crawler.Core
         /// </summary>
         public string contextData { get; set; }
 
-        public Dictionary<string,string> Results { get; set; } = new Dictionary<string, string>();
+
+        public List<Result> Results { get; } = new List<Result>();
 
         /// <summary>
         /// 跳过抽取
         /// </summary>
         public bool SkipExtractField { get; set; } = false;
 
+        /// <summary>
+        /// 跳过从这个网页正文发现新的URL
+        /// </summary>
+        public bool SkipFindUrl { get; set; } = false;
         /// <summary>
         /// 只能在afterExtractField回调函数中使用, 用来过滤抽取项中不需要的抽取结果, 被过滤的抽取结果不会被保存到数据库中
         /// </summary>
@@ -40,5 +53,8 @@ namespace Crawler.Core
         /// 如果不传入参数, 表示过滤当前网页的所有抽取结果; 
         /// 如果传入参数, 表示过滤该抽取项的当前抽取结果</param>
         public void Skip(string fieldName = null) { }
+
+
+
     }
 }

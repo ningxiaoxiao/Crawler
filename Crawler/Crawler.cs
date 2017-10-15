@@ -41,6 +41,7 @@ namespace Crawler.Core
             Processor.OnComplete = Pipeline.Handle;
 
             Schduler.AddScanUrl(c.ScanUrls);
+            ThreadPool.SetMaxThreads(c.ThreadNum, c.ThreadNum);
         }
 
         public void Run()
@@ -48,29 +49,57 @@ namespace Crawler.Core
             BeforeCrawl?.Invoke();
             var sw = new Stopwatch();
             sw.Start();
-            while (Schduler.Left > 0)
-            {
-                var st = sw.ElapsedMilliseconds;
-                var r = Schduler.GetNext();
-                Downloader.Download(r);
+            var retrytimes = 0;
 
+            for (int i = 0; i < Config.ThreadNum; i++)
+            {
+                ThreadPool.QueueUserWorkItem(Task);
+            }
+
+            sw.Stop();
+
+            Logger.Info($"启动完成 耗时:{sw.ElapsedMilliseconds}ms");
+        }
+
+
+        private static object _lock = new object();
+        private void Task(object state)
+        {
+            int sleeptime = 0;
+            while (true)
+            {
+                var sw = new Stopwatch();
+                sw.Start();
+                Request r;
+                do
+                {
+                    r = Schduler.GetNext();
+                    if (r == null)
+                    {
+                        Thread.Sleep(1000);
+                        sleeptime += 1000;
+                        if (sleeptime > 30000)
+                        {
+                            Logger.Warn("已经30秒没有得到新的请求,线程退出");
+                            return;
+                        }
+                    }
+                } while (r == null);
+
+
+
+                Downloader.Download(r);
+                sw.Stop();
+                var tc = 0;
+                var twc = 0;
+                ThreadPool.GetAvailableThreads(out tc, out twc);
                 Logger.Info($"剩余:{Schduler.Left}  下载失败:{Downloader.FailCount} 解析成功:{Processor.ExtractCount} " +
                             $"解析失败:{Processor.FailCount} 跳过解析:{Processor.SkipCount} " +
                             $"总计:{Downloader.SuccessCount + Downloader.FailCount} " +
-                            $"上一轮用时:{sw.ElapsedMilliseconds - st}ms 总用时:{sw.Elapsed.TotalSeconds}s");
-
-
+                            $"用时:{sw.ElapsedMilliseconds}ms 激活线程数:{tc},{twc}");
             }
-            sw.Stop();
-
-            var sleeptime = (int)((double)Config.Interval * 1000 - sw.ElapsedMilliseconds);
-            if (sleeptime > 0 && Schduler.Left > 0)
-            {
-                Console.WriteLine("Crawler.Run sleep:" + sleeptime);
-                Thread.Sleep(sleeptime);
-            }
+            
         }
-
         ///<summary>
         /// 初始化时调用, 用来进行一些爬取前的操作, 栗如, 给所有HTTP请求添加Headers等
         /// </summary>

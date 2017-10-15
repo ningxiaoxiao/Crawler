@@ -13,19 +13,34 @@ namespace Crawler.Core
         public const string UserAgentComputer = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
         public const string UserAgentMobile = "";
 
-        public string[] Domains { get; set; } 
+        public bool ChangeProxyEveryPage => false;
+        public bool EnableJs => true;
+        /// <summary>
+        /// 可以发起请求的合法域
+        /// </summary>
+        public string[] Domains { get; set; }
+        /// <summary>
+        /// 起始页
+        /// </summary>
         public string ScanUrls { get; set; }
-        public Regex ContentUrlRegexes { get; set; }
-        public Regex HelperUrlRegexes { get; set; }
+        /// <summary>
+        /// 识别内容页正则
+        /// </summary>
+        public Regex ContentUrlRegexes { get; set; } = new Regex("http");
+        /// <summary>
+        /// 列表页正则
+        /// </summary>
+        public Regex HelperUrlRegexes { get; set; } = new Regex("http");
+        /// <summary>
+        /// 抽取项
+        /// </summary>
         public Field[] Fields { get; set; }
         /// <summary>
-        /// 间隔 秒
+        /// 间隔 秒 默认30分钟
         /// </summary>
         public int Interval { get; set; } = 1800;
-        public bool EnableJs => true;
         public int Timeout { get; set; } = 1000;
-        public string UserAgent { get; set; } 
-        public bool ChangeProxyEveryPage => false;
+        public string UserAgent { get; set; } = UserAgentComputer;
         /// <summary>
         /// 单个HTTP请求失败时, 可自动重试. 通过tryTimes设置单个HTTP请求的最多重复请求次数
         /// 默认值是0, 0和1都表示单个HTTP请求最多可请求一次
@@ -37,6 +52,12 @@ namespace Crawler.Core
         /// 默认值是false, 神箭手应用会按顺序依次爬取待爬队列中的url, 包括helperUrl, contentUrl和scanUrl
         /// </summary>
         public bool EntriesFirst { get; set; } = false;
+        /// <summary>
+        /// 同时工作的线程数 默认10
+        /// </summary>
+        public int ThreadNum { get; set; } = 10;
+
+        public int Deth { get; set; } = 2;
     }
 
     public class Field
@@ -94,6 +115,8 @@ namespace Crawler.Core
         /// 值设为true, 表示抽取项同时抽取多条数据, 抽取项的值是数组类型
         /// </summary>
         public bool Repeated { get; set; } = false;
+
+       
     }
 
     public enum SelectorType

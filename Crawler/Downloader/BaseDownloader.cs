@@ -22,28 +22,34 @@ namespace Crawler.Core.Downloader
 
 
         public Logger Logger => Crawler.Logger;
-        readonly HttpHelper _http = new HttpHelper();
+        private readonly HttpHelper _http = new HttpHelper();
+        private static object _lock=new object();
 
         public void Download(Request r)
         {
-            var beforR = BeforeDownloadPage?.Invoke(r) ?? r;
-            var p = _http.GetHtml(beforR) as Page;
-            p.Request = beforR;
-            if (p.Response.StatusCode != HttpStatusCode.OK)
+            lock (_lock)
             {
-                //下载失败
-                FailCount++;
-                Logger.Warn($"下载 {p.Request.URL} 失败,{p.Response.StatusCode}");
-                return;
-            }
-            SuccessCount++;
-            Logger.Info($"下载 {p.Request.URL} 成功");
+                if(r==null)return;
+                var beforR = BeforeDownloadPage?.Invoke(r) ?? r;
+                var p = _http.GetHtml(beforR) as Page;
+                p.Request = beforR;
+                if (p.Response.StatusCode != HttpStatusCode.OK)
+                {
+                    //下载失败
+                    FailCount++;
+                    Logger.Warn($"下载 {p.Request.URL} 失败,{p.Response.StatusCode}");
+                    return;
+                }
+                SuccessCount++;
+                Logger.Info($"下载 {p.Request.URL} 成功");
 
-            //把p的cookie存到总cookie中去
-            if (p.CookieCollection != null)
-                beforR.Schduler.AddCookie(p.CookieCollection);
-            DownloadComplete?.Invoke(p);
-            AfterDownloadPage?.Invoke(p);
+                //把p的cookie存到总cookie中去
+                if (p.CookieCollection != null)
+                    beforR.Schduler.AddCookie(p.CookieCollection);
+                DownloadComplete?.Invoke(p);
+                AfterDownloadPage?.Invoke(p);
+            }
+           
 
         }
         public bool IsAntiSpider(string url, string content, Page page)
