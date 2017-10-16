@@ -78,7 +78,7 @@ namespace Crawler.Core.Processor.Tests
         [TestMethod]
         public void FindUrlTest()
         {
-            Config=new Config();
+            Config=new Config{ScanUrls = "http://www.cnbeta.com" };
             var r = new HttpItem()
             {
                 URL = "http://www.cnbeta.com",
@@ -86,7 +86,9 @@ namespace Crawler.Core.Processor.Tests
 
             var p = http.GetHtml(r);
             var pg = new Page(p);
-            pg.Request=new Request(new DefaultSchduler());
+            var s = new DefaultSchduler();
+            s.Config = Config;
+            pg.Request=new Request(s);
             FindUrl(pg);
 
         }

@@ -7,12 +7,12 @@ namespace Crawler.Core.Scheduler
 {
     public interface ISchduler
     {
-        Request GetNext();
-
         Logger Logger { get; }
         int Left { get; }
         Config Config { get; set; }
 
+
+        Request GetNext();
 
         /// <summary>
         /// 一般在beforeCrawl回调函数中调用, 用来给的所有HTTP请求添加一个Header

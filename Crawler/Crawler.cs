@@ -12,18 +12,19 @@ namespace Crawler.Core
     public class Crawler
     {
         public static Logger Logger = LogManager.GetLogger("Crawler");
+        private static object _lock = new object();
         public IDownloader Downloader { get; private set; }
         public IPipeline Pipeline { get; private set; }
         public IProcessor Processor { get; private set; }
         public ISchduler Schduler { get; private set; }
 
-        public delegate void VoidDelegate();
-
-
         public string Identity { get; private set; }
 
         public Config Config { get; private set; }
 
+
+
+        public delegate void VoidDelegate();
 
 
         public void Setup(Config c)
@@ -40,6 +41,7 @@ namespace Crawler.Core
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
 
+            if (c.ScanUrls == null) throw new Exception("没有启动页");
             Schduler.AddScanUrl(c.ScanUrls);
             ThreadPool.SetMaxThreads(c.ThreadNum, c.ThreadNum);
         }
@@ -62,7 +64,11 @@ namespace Crawler.Core
         }
 
 
-        private static object _lock = new object();
+        public void beforeDownloadPage()
+        {
+
+        }
+
         private void Task(object state)
         {
             int sleeptime = 0;
@@ -96,9 +102,13 @@ namespace Crawler.Core
                 Logger.Info($"剩余:{Schduler.Left}  下载失败:{Downloader.FailCount} 解析成功:{Processor.ExtractCount} " +
                             $"解析失败:{Processor.FailCount} 跳过解析:{Processor.SkipCount} " +
                             $"总计:{Downloader.SuccessCount + Downloader.FailCount} " +
-                            $"用时:{sw.ElapsedMilliseconds}ms 激活线程数:{tc},{twc}");
+                            $"用时:{sw.ElapsedMilliseconds}ms 激活线程数:{twc - tc}");
             }
-            
+
+        }
+        protected virtual void OnBeforeCrawl()
+        {
+            BeforeCrawl?.Invoke();
         }
         ///<summary>
         /// 初始化时调用, 用来进行一些爬取前的操作, 栗如, 给所有HTTP请求添加Headers等
@@ -106,14 +116,5 @@ namespace Crawler.Core
         private event VoidDelegate BeforeCrawl;
 
 
-        public void beforeDownloadPage()
-        {
-
-        }
-
-        protected virtual void OnBeforeCrawl()
-        {
-            BeforeCrawl?.Invoke();
-        }
     }
 }

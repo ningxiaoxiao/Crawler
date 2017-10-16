@@ -7,31 +7,6 @@ namespace Crawler.Core.Scheduler
 {
     public abstract class BaseSchduler : ISchduler
     {
-        public Logger Logger => Crawler.Logger;
-
-        private readonly Queue<Request> _queue = new Queue<Request>();
-
-        private static readonly object _lock = new object();
-
-        public Request GetNext()
-        {
-            lock (_lock)
-            {
-                try
-                {
-                    var r = _queue.Dequeue();
-                    Logger.Info($"{r.URL} 出队 剩余:{_queue.Count}");
-                    return r;
-                }
-                catch (Exception e)
-                {
-                    return null;
-                }
-
-            }
-
-        }
-
         public int Left
         {
             get
@@ -45,11 +20,34 @@ namespace Crawler.Core.Scheduler
 
         public Config Config { get; set; }
 
+        public Logger Logger => Crawler.Logger;
+
+        private readonly Queue<Request> _queue = new Queue<Request>();
+
+        private static readonly object _lock = new object();
+
         /// <summary>
         /// 全局使用的头
         /// </summary>
         private readonly WebHeaderCollection _headers = new WebHeaderCollection();
 
+
+        private readonly CookieContainer _cookies = new CookieContainer();
+        public Request GetNext()
+        {
+            lock (_lock)
+            {
+
+                if (_queue.Count == 0) return null;
+
+                var r = _queue.Dequeue();
+                Logger.Info($"{r.URL} 出队 剩余:{_queue.Count}");
+                return r;
+
+
+            }
+
+        }
 
         public void AddHeader(string key, string value)
         {
@@ -66,7 +64,6 @@ namespace Crawler.Core.Scheduler
 
         }
 
-        private readonly CookieContainer _cookies = new CookieContainer();
         public void AddCookie(string key, string value, string domain = null)
         {
             if (domain == null)
@@ -139,17 +136,17 @@ namespace Crawler.Core.Scheduler
             }
         }
 
-        public void AddUrls(IEnumerable<string> urls, int deth=0, Options os = null)
+        public void AddUrls(IEnumerable<string> urls, int deth = 0, Options os = null)
         {
             foreach (var u in urls)
             {
-                AddUrl(u,deth, os);
+                AddUrl(u, deth, os);
             }
         }
 
         public void AddScanUrl(string url, Options options = null)
         {
-            AddUrl(url,0, options);
+            AddUrl(url, 0, options);
         }
 
         public string RequestUrl(string url, Options options = null)

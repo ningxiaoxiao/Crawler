@@ -19,13 +19,12 @@ namespace Crawler.Core.Scheduler.Tests
         [TestMethod()]
         public void AddCookieTest()
         {
-
-            var s=new BaseSchdulerTests();
+            
             var c=new Crawler();
-            c.Setup(new Config(){Domains = new []{"www.baidu.com"}});
-            s.AddCookie("hi","nihao");
+            c.Setup(new Config {ScanUrls = "http://www.baidu.com"});
+            c.Schduler.AddCookie("hi","nihao");
 
-            var r = s.GetCookie("hi","www.baidu.com");
+            var r = c.Schduler.GetCookie("hi","www.baidu.com");
 
             Assert.AreEqual(r,"nihao");
         }

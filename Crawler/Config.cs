@@ -15,10 +15,16 @@ namespace Crawler.Core
 
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
+        private string[] _domains;
         /// <summary>
-        /// 可以发起请求的合法域
+        /// 可以发起请求的合法域,默认是scanurls的host
         /// </summary>
-        public string[] Domains { get; set; }
+        public string[] Domains
+        {
+            get => _domains ?? new[] { new Uri(ScanUrls).Host };
+            set => _domains = value;
+        }
+
         /// <summary>
         /// 起始页
         /// </summary>
@@ -48,7 +54,7 @@ namespace Crawler.Core
         /// </summary>
         public int TryTimes { get; set; } = 0;
         /// <summary>
-        /// 设置神箭手应用是否优先爬取待爬队列中的scanUrl
+        /// 设置应用是否优先爬取待爬队列中的scanUrl
         /// 默认值是false, 神箭手应用会按顺序依次爬取待爬队列中的url, 包括helperUrl, contentUrl和scanUrl
         /// </summary>
         public bool EntriesFirst { get; set; } = false;
@@ -116,7 +122,7 @@ namespace Crawler.Core
         /// </summary>
         public bool Repeated { get; set; } = false;
 
-       
+
     }
 
     public enum SelectorType

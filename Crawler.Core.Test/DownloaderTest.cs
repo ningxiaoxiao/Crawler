@@ -12,16 +12,14 @@ namespace Crawler.Core.Test
         [TestMethod]
         public void Download()
         {
-            var k = new BaseDownloader();
-            var s = new Scheduler.Tests.BaseSchdulerTests();
+
             var c = new Crawler();
-            c.Setup(new Config() { Domains = new[] { "www.baidu.com" } });
+            c.Setup(new Config() { ScanUrls = "https://www.baidu.com/img/baidu.svg" });
 
 
-            s.AddUrl("https://www.baidu.com/img/baidu.svg");
-             k.Download(s.GetNext());
-            
-            Logger.LogMessage(s.GetCookie("BAIDUID", "www.baidu.com"));
+            c.Downloader.Download(c.Schduler.GetNext());
+
+            Logger.LogMessage(c.Schduler.GetCookie("BAIDUID", "www.baidu.com"));
         }
     }
 }
