@@ -53,20 +53,20 @@ namespace Crawler.Core.Processor
                 OnProcessScanPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
-            else if (Config.HelperUrlRegexes.Match(page.Request.URL).Success)
+            else if (Config.HelperUrlRegexes.IsMatch(page.Request.URL))
             {
                 //识别列表页
                 OnProcessHelperPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
-            else if (Config.ContentUrlRegexes.Match(page.Request.URL).Success)
+            else if (Config.ContentUrlRegexes.IsMatch(page.Request.URL))
             {
                 //识别内容页
                 OnProcessContentPage?.Invoke(page);
             }
             else
             {
-                page.SkipExtractField = true;
+               page.SkipExtractField = true;
             }
 
             if (page.SkipExtractField)
@@ -203,6 +203,9 @@ namespace Crawler.Core.Processor
         public string Key { get; set; }
         public string Value { get; set; }
         public Type Type { get; set; } = typeof(string);
+        /// <summary>
+        /// 跳过存储
+        /// </summary>
         public bool Skip { get; set; } = false;
 
         public Result(string k, string v)

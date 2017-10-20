@@ -21,8 +21,8 @@ namespace Crawler.Core
         /// </summary>
         public string[] Domains
         {
-            get => _domains ?? new[] { new Uri(ScanUrls).Host };
-            set => _domains = value;
+            get { return _domains ?? new[] { new Uri(ScanUrls).Host }; }
+            set { _domains = value; }
         }
 
         /// <summary>
