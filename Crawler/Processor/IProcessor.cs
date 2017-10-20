@@ -29,6 +29,7 @@ namespace Crawler.Core.Processor
         /// 从内容页中抽取到一个抽取项的值后进行的回调, 在此回调中可以对该抽取项的值进行处理并返回
         /// </summary>
         VoidPageResultDelegate AfterExtractField { get; set; }
+
         VoidPageDelegate OnComplete { get; set; }
         void Handle(Page page);
     }
@@ -48,6 +49,7 @@ namespace Crawler.Core.Processor
 
         public void Handle(Page page)
         {
+            Logger.Info($"开始处理 {page.Request.URL}");
             if (page.Request.URL == Config.ScanUrls)
             {
                 OnProcessScanPage?.Invoke(page);
@@ -55,42 +57,72 @@ namespace Crawler.Core.Processor
             }
             else if (Config.HelperUrlRegexes.IsMatch(page.Request.URL))
             {
+                Logger.Info($"列表页");
                 //识别列表页
                 OnProcessHelperPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
             else if (Config.ContentUrlRegexes.IsMatch(page.Request.URL))
             {
+                Logger.Info($"内容页");
                 //识别内容页
                 OnProcessContentPage?.Invoke(page);
             }
             else
             {
-               page.SkipExtractField = true;
+                Logger.Info($"未知页");
+                //什么都不是的网页,跳过抽取,
+                page.SkipExtractField = true;
             }
 
             if (page.SkipExtractField)
             {
+                Logger.Info($"跳过抽取");
                 SkipCount++;
             }
             else
             {
+                Logger.Info($"开始抽取");
                 Extract(page);
+                Logger.Info($"抽取完成");
+                OnComplete?.Invoke(page);
+                Logger.Info($"{page.Request.URL} 抽取到{page.Results.Count}结果");
+                ExtractCount++;
             }
 
+            Logger.Info($"深度检查,当前深度[{page.Request.Deth}],最大深度[{Config.MaxDeth}]");
+            //查看深度 如果大于最大深度,就不会向这个网页中再查找网址
+            if (page.Request.Deth > Config.MaxDeth) return;
 
-
-            OnComplete?.Invoke(page);
-            Logger.Info($"{page.Request.URL} 抽取成功");
-            ExtractCount++;
-
-            if (page.Request.Deth >= Config.Deth) return;
 
             if (!page.SkipFindUrl)
             {
+                Logger.Info($"启动查找");
                 var t = new Thread(FindUrl);
                 t.Start(page);
             }
+            Logger.Info($"处理结束");
+        }
+
+        public void FindUrl(object pageobj)
+        {
+
+            var page = (Page)pageobj;
+            Logger.Info($"查找新的URL开始,当前深度: " + page.Request.Deth);
+            var r = new Regex("href=\"(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
+
+            var ms = r.Matches(page.Html);
+            foreach (Match match in ms)
+            {
+                var url = match.Value.Remove(0, 6);
+
+                if (Config.HelperUrlRegexes.IsMatch(url) || Config.ContentUrlRegexes.IsMatch(url))
+                {
+                    Logger.Info($"在[{page.Request.URL}]发现新网页[{url}]");
+                    page.Request.Schduler.AddUrl(url, page.Request.Deth + 1);
+                }
+            }
+            Logger.Info($"查找新的URL结束");
         }
 
         private void Extract(Page page)
@@ -104,7 +136,7 @@ namespace Crawler.Core.Processor
                     switch (field.SourceType)
                     {
                         case SourceType.Page:
-                            source = page.Raw;
+                            source = page.Html;
                             break;
                         case SourceType.AttachedUrl:
                             throw new NotImplementedException();
@@ -139,24 +171,6 @@ namespace Crawler.Core.Processor
                     Logger.Error($"{page.Request.URL} 抽取 {field.Selectortype} {field.Name} 失败 \r\n{e}");
                     FailCount++;
                     return;
-                }
-            }
-        }
-
-        public void FindUrl(object pageobj)
-        {
-            var page = (Page)pageobj;
-            var r = new Regex("href=\"(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
-
-            var ms = r.Matches(page.Raw);
-            foreach (Match match in ms)
-            {
-                var url = match.Value.Remove(0, 6);
-
-                if (Config.HelperUrlRegexes.IsMatch(url) || Config.ContentUrlRegexes.IsMatch(url))
-                {
-                    //Logger.Info($"在[{page.Request.URL}]发现新网页[{url}]");
-                    page.Request.Schduler.AddUrl(url, page.Request.Deth + 1);
                 }
             }
         }

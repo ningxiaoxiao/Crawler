@@ -33,15 +33,27 @@ namespace Crawler.Core.Pipeline
         }
         public override void Handle(Page p)
         {
+
             if (p.Results.Count == 0) return;
+            Logger.Info("开始保存");
             var doc = new BsonDocument();
             foreach (var r in p.Results)
             {
                 if (!r.Skip)
                     doc.Add(r.Key, r.Value);
             }
-            if (doc.ElementCount > 0)
-                _collection.InsertOne(doc);
+            Logger.Info("保存数量:" + doc.ElementCount);
+            try
+            {
+                if (doc.ElementCount > 0)
+                    _collection.InsertOne(doc);
+            }
+            catch (Exception e)
+            {
+                Logger.Debug(e,"保存出现问题");
+            }
+           
+            Logger.Info("保存结束");
         }
     }
 }

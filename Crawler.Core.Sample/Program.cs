@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 
 namespace Crawler.Core.Sample
@@ -8,6 +9,7 @@ namespace Crawler.Core.Sample
         static void Main(string[] args)
         {
             douyuSample();
+            Console.WriteLine("end");
             Console.ReadKey();
         }
 
@@ -65,10 +67,10 @@ namespace Crawler.Core.Sample
             {
 
                 var r = new Regex("\" data-rid=\'([1-9]*)\'");
-                var ms = r.Matches(p.Raw);
+                var ms = r.Matches(p.Html);
                 foreach (Match m in ms)
                 {
-                    crawler.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value, p.Request.Deth);
+                    crawler.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value, p.Request.Deth + 1);
                 }
 
                 p.SkipFindUrl = true;
@@ -78,17 +80,21 @@ namespace Crawler.Core.Sample
             {
                 var r = new Regex(@"count:(.+),");
 
-                var m = r.Match(p.Raw);
+                var m = r.Match(p.Html);
                 var count = int.Parse(m.Groups[1].Value.Replace("\"", string.Empty));
 
-                for (int i = 0; i < count; i++)
+                for (int i = 0; i < 2; i++)
                 {
-                    crawler.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1", p.Request.Deth);
+                    crawler.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1", p.Request.Deth + 1);
                 }
             };
-            crawler.Processor.AfterExtractField = (p, r) =>
+            crawler.Downloader.AfterDownloadPage = p =>
+              {
+                  Console.WriteLine("AfterDownloadPage:" + p.Html.Substring(0, 10));
+              };
+            crawler.Processor.OnProcessContentPage = (p) =>
             {
-
+                Console.WriteLine("OnProcessContentPage" + p.Html.Substring(0, 10));
             };
 
             crawler.Run();

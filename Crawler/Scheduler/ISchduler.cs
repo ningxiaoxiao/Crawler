@@ -59,7 +59,10 @@ namespace Crawler.Core.Scheduler
         void AddScanUrl(string url, Options options = null);
 
         /// <summary>
-        /// 下载网页, 返回网页内容,一般在beforeCrawl, afterDownloadPage, onProcessScanPage, onProcessHelperPage和onProcessContentPage回调函数中调用, 
+        /// 下载网页, 返回网页内容,
+        /// 一般在
+        /// beforeCrawl, afterDownloadPage, onProcessScanPage, onProcessHelperPage和onProcessContentPage
+        /// 回调函数中调用, 
         /// </summary>
         /// <param name="url"></param>
         /// <param name="options"></param>
@@ -77,5 +80,7 @@ namespace Crawler.Core.Scheduler
         /// </summary>
         /// <param name="charset">网页编码格式, String类型, 必填项, 无默认值. 常用编码格式有”UTF-8”, “GBK”, “gb2312”等</param>
         void SetCharset(string charset);
+
+        void AddRequest(Request r);
     }
 }

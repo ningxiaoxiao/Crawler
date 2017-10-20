@@ -52,7 +52,7 @@ namespace Crawler.Core
         /// 默认值是0, 0和1都表示单个HTTP请求最多可请求一次
         /// 请求失败的情况包括: “请求过程出现异常(如, 请求超时)”和”请求返回内容为空”
         /// </summary>
-        public int TryTimes { get; set; } = 0;
+        public int TryTimes { get; set; } = 3;
         /// <summary>
         /// 设置应用是否优先爬取待爬队列中的scanUrl
         /// 默认值是false, 神箭手应用会按顺序依次爬取待爬队列中的url, 包括helperUrl, contentUrl和scanUrl
@@ -62,8 +62,10 @@ namespace Crawler.Core
         /// 同时工作的线程数 默认10
         /// </summary>
         public int ThreadNum { get; set; } = 10;
-
-        public int Deth { get; set; } = 2;
+        /// <summary>
+        /// 启动页是0
+        /// </summary>
+        public int MaxDeth { get; set; } = 2;
     }
 
     public class Field

@@ -20,9 +20,9 @@ namespace Crawler.Core
 
         public int Deth { get; set; }= 0;
         /// <summary>
-        /// 尝试几次,0-1都会只尝试一次,
+        /// 剩余尝试下载次数
         /// </summary>
-        public int TryTimes { get; set; } = 0;
+        public int LeftTryTimes { get; set; } = 3;
         public static bool operator ==(Request a, Request b)
         {
             if (Equals(a, null) && Equals(b, null))

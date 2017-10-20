@@ -22,35 +22,36 @@ namespace Crawler.Core.Downloader
 
 
         public Logger Logger => Crawler.Logger;
-        private readonly HttpHelper _http = new HttpHelper();
-        private static object _lock=new object();
+        private static readonly object _lock = new object();
 
         public void Download(Request r)
         {
-            lock (_lock)
+
+            if (r == null) return;
+            r.LeftTryTimes--;
+
+            var beforR = BeforeDownloadPage?.Invoke(r) ?? r;
+            var http = new HttpHelper();
+            var p = (Page)http.GetHtml(beforR);
+            p.Request = beforR;
+
+            if (p.Response == null || p.Response.StatusCode != HttpStatusCode.OK)
             {
-                if(r==null)return;
-                var beforR = BeforeDownloadPage?.Invoke(r) ?? r;
-                var p = _http.GetHtml(beforR) as Page;
-                p.Request = beforR;
-                if (p.Response.StatusCode != HttpStatusCode.OK)
-                {
-                    //下载失败
-                    FailCount++;
-                    Logger.Warn($"下载 {p.Request.URL} 失败,{p.Response.StatusCode}");
-                    return;
-                }
-                SuccessCount++;
-                Logger.Info($"下载 {p.Request.URL} 成功");
-
-                //把p的cookie存到总cookie中去
-                if (p.CookieCollection != null)
-                    beforR.Schduler.AddCookie(p.CookieCollection);
-                DownloadComplete?.Invoke(p);
-                AfterDownloadPage?.Invoke(p);
+                //下载失败
+                FailCount++;
+                var failres = p.Response == null ? p.Html : p.Response.StatusDescription;
+                Logger.Warn($"下载 {p.Request.URL} 失败,{failres}");
+                if (r.LeftTryTimes > 0) p.Request.Schduler.AddRequest(beforR);
+                return;
             }
-           
+            SuccessCount++;
+            Logger.Info($"下载 {p.Request.URL} 成功");
 
+            //把p的cookie存到总cookie中去
+            if (p.CookieCollection.Count > 0)
+                beforR.Schduler.AddCookie(p.CookieCollection);
+            DownloadComplete?.Invoke(p);
+            AfterDownloadPage?.Invoke(p);
         }
         public bool IsAntiSpider(string url, string content, Page page)
         {

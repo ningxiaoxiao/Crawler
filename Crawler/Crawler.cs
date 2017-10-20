@@ -43,19 +43,22 @@ namespace Crawler.Core
 
             if (c.ScanUrls == null) throw new Exception("没有启动页");
             Schduler.AddScanUrl(c.ScanUrls);
-            ThreadPool.SetMaxThreads(c.ThreadNum, c.ThreadNum);
+            ThreadPool.SetMaxThreads(c.ThreadNum*5, c.ThreadNum*5);
         }
 
         public void Run()
         {
+            Logger.Info("启动");
             BeforeCrawl?.Invoke();
             var sw = new Stopwatch();
             sw.Start();
-            var retrytimes = 0;
+            Logger.Info("启动10个线程");
 
-            for (int i = 0; i < Config.ThreadNum; i++)
+            for (var i = 0; i < Config.ThreadNum; i++)
             {
+
                 ThreadPool.QueueUserWorkItem(Task);
+
             }
 
             sw.Stop();
@@ -63,20 +66,16 @@ namespace Crawler.Core
             Logger.Info($"启动完成 耗时:{sw.ElapsedMilliseconds}ms");
         }
 
-
-        public void beforeDownloadPage()
-        {
-
-        }
-
         private void Task(object state)
         {
-            int sleeptime = 0;
+            Logger.Info($"{Thread.CurrentThread.ManagedThreadId}号 线程启动");
             while (true)
             {
                 var sw = new Stopwatch();
+
                 sw.Start();
                 Request r;
+                int sleeptime = 0;
                 do
                 {
                     r = Schduler.GetNext();
@@ -86,10 +85,15 @@ namespace Crawler.Core
                         sleeptime += 1000;
                         if (sleeptime > 30000)
                         {
-                            Logger.Warn("已经30秒没有得到新的请求,线程退出");
+                            Logger.Info($"已经连续30秒没有得到新的请求,{Thread.CurrentThread.ManagedThreadId}号线程退出");
                             return;
                         }
                     }
+                    else
+                    {
+                        sleeptime = 0;
+                    }
+
                 } while (r == null);
 
 
@@ -106,7 +110,7 @@ namespace Crawler.Core
             }
 
         }
-        protected virtual void OnBeforeCrawl()
+        protected void OnBeforeCrawl()
         {
             BeforeCrawl?.Invoke();
         }

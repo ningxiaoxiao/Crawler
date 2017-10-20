@@ -50,7 +50,7 @@ namespace Crawler.Core.Downloader
         public HttpResult GetHtml(HttpItem item)
         {
             //返回参数
-            var result = new Page ();
+            var result = new Page();
             try
             {
                 //准备参数
@@ -61,7 +61,14 @@ namespace Crawler.Core.Downloader
             catch (Exception ex)
             {
                 //配置参数时出错
-                return new HttpResult() { Cookie = string.Empty, Header = null, Html = ex.Message, StatusDescription = "配置参数时出错：" + ex.Message };
+                return new HttpResult()
+                {
+                    Cookie = string.Empty,
+                    Header = null,
+                    Html = ex.Message,
+                    StatusDescription = "配置参数时出错：" + ex.Message,
+                    StatusCode = HttpStatusCode.NotFound
+                };
             }
             try
             {
