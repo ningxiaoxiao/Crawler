@@ -46,12 +46,17 @@ namespace Crawler.Core.Downloader
             }
             SuccessCount++;
             Logger.Info($"下载 {p.Request.URL} 成功");
-
+            p.Timestamp = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)
                 beforR.Schduler.AddCookie(p.CookieCollection);
             DownloadComplete?.Invoke(p);
             AfterDownloadPage?.Invoke(p);
+        }
+
+        private static string GetTimestamp(bool l=false)
+        {
+            return ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / (l?10000: 10000000)).ToString();
         }
         public bool IsAntiSpider(string url, string content, Page page)
         {

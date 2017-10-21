@@ -20,7 +20,7 @@ namespace Crawler.Core
 
         public string Identity { get; private set; }
 
-        public Config Config { get; private set; }
+        public static Config Config { get; private set; }
 
 
 
@@ -34,7 +34,7 @@ namespace Crawler.Core
             Downloader = new BaseDownloader();
             Schduler = new DefaultSchduler();
             Processor = new DefaultProcessor();
-            Pipeline = new MangoDBPipline();
+            Pipeline = new MySqlPipline();
 
             Schduler.Config = c;
             Processor.Config = c;
@@ -43,7 +43,7 @@ namespace Crawler.Core
 
             if (c.ScanUrls == null) throw new Exception("没有启动页");
             Schduler.AddScanUrl(c.ScanUrls);
-            ThreadPool.SetMaxThreads(c.ThreadNum*5, c.ThreadNum*5);
+            ThreadPool.SetMaxThreads(c.ThreadNum * 5, c.ThreadNum * 5);
         }
 
         public void Run()

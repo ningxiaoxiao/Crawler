@@ -9,6 +9,10 @@ namespace Crawler.Core
     /// </summary>
     public class Page : HttpResult
     {
+        /// <summary>
+        /// 下载完成时的时间
+        /// </summary>
+        public string Timestamp { get; set; }
         public Page() { }
 
         public Page(HttpResult r)
