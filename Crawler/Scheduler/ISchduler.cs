@@ -9,7 +9,7 @@ namespace Crawler.Core.Scheduler
     {
         Logger Logger { get; }
         int Left { get; }
-        Config Config { get; set; }
+        Config Config { get; }
 
 
         Request GetNext();

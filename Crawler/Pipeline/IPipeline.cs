@@ -32,16 +32,18 @@ namespace Crawler.Core.Pipeline
 
     public class MySqlPipline : BasePipeline
     {
-        private string sqlconstring;
+        private readonly string _sqlConString;
 
 
         public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='1234';charset='utf8';pooling=true")
         {
-            sqlconstring = sqlcon;
+            _sqlConString = sqlcon;
 
 
-            var mySqlConnection = new MySqlConnection(sqlconstring);
+            var mySqlConnection = new MySqlConnection(_sqlConString);
             mySqlConnection.Open();
+
+            //todo 检查数据库与表是不是存在
             try
             {
                 var cmd = new MySqlCommand("CREATE DATABASE " + DatabaseName, mySqlConnection);
@@ -79,7 +81,7 @@ namespace Crawler.Core.Pipeline
 
         public override void OnHandel(Page p)
         {
-            var con = new MySqlConnection(sqlconstring);
+            var con = new MySqlConnection(_sqlConString);
             con.Open();
             con.ChangeDatabase(DatabaseName);
             var cmd = new MySqlCommand { Connection = con };

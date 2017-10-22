@@ -29,7 +29,7 @@ namespace Crawler.Core
                 return true;
 
             if (!Equals(a, null) && !Equals(b, null))
-                return a.URL == b.URL;
+                return a.Url == b.Url;
             return false;
         }
 
@@ -39,7 +39,7 @@ namespace Crawler.Core
                 return false;
 
             if (!Equals(a, null) && !Equals(b, null))
-                return a.URL != b.URL;
+                return a.Url != b.Url;
             return false;
 
         }
@@ -49,12 +49,12 @@ namespace Crawler.Core
             if (Equals(obj, null)) return false;
             var r = (Request)obj;
 
-            return URL == r.URL;
+            return Url == r.Url;
         }
 
         public override int GetHashCode()
         {
-            return URL.GetHashCode();
+            return Url.GetHashCode();
         }
     }
 }

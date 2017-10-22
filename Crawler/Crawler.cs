@@ -9,7 +9,7 @@ using NLog;
 
 namespace Crawler.Core
 {
-    public class Crawler
+    public sealed class Crawler
     {
         public static Logger Logger = LogManager.GetLogger("Crawler");
         private static object _lock = new object();
@@ -29,6 +29,8 @@ namespace Crawler.Core
 
         public void Setup(Config c)
         {
+
+            if (c.ScanUrls == null) throw new Exception("没有启动页");
             Config = c;
 
             Downloader = new BaseDownloader();
@@ -36,14 +38,12 @@ namespace Crawler.Core
             Processor = new DefaultProcessor();
             Pipeline = new MySqlPipline();
 
-            Schduler.Config = c;
-            Processor.Config = c;
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
 
-            if (c.ScanUrls == null) throw new Exception("没有启动页");
-            Schduler.AddScanUrl(c.ScanUrls);
-            ThreadPool.SetMaxThreads(c.ThreadNum * 5, c.ThreadNum * 5);
+            Schduler.AddScanUrl(Config.ScanUrls);
+
+            ThreadPool.SetMaxThreads(Config.ThreadNum * 5, Config.ThreadNum * 5);
         }
 
         public void Run()

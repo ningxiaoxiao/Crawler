@@ -45,6 +45,7 @@ namespace Crawler.Core
         /// 间隔 秒 默认30分钟
         /// </summary>
         public int Interval { get; set; } = 1800;
+        //todo 设置爬取的类型 定时 定期 重复 一次爬取
         public int Timeout { get; set; } = 1000;
         public string UserAgent { get; set; } = UserAgentComputer;
         /// <summary>

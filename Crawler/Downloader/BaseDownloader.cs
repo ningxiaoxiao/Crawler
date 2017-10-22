@@ -40,12 +40,12 @@ namespace Crawler.Core.Downloader
                 //下载失败
                 FailCount++;
                 var failres = p.Response == null ? p.Html : p.Response.StatusDescription;
-                Logger.Warn($"下载 {p.Request.URL} 失败,{failres}");
+                Logger.Warn($"下载 {p.Request.Url} 失败,{failres}");
                 if (r.LeftTryTimes > 0) p.Request.Schduler.AddRequest(beforR);
                 return;
             }
             SuccessCount++;
-            Logger.Info($"下载 {p.Request.URL} 成功");
+            Logger.Info($"下载 {p.Request.Url} 成功");
             p.Timestamp = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)

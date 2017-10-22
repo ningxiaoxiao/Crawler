@@ -18,7 +18,7 @@ namespace Crawler.Core.Scheduler
             }
         }
 
-        public Config Config { get; set; }
+        public Config Config => Crawler.Config;
 
         public Logger Logger => Crawler.Logger;
 
@@ -40,7 +40,7 @@ namespace Crawler.Core.Scheduler
                 if (_queue.Count == 0) return null;
 
                 var r = _queue.Dequeue();
-                Logger.Info($"{r.URL} 出队 剩余:{_queue.Count}");
+                Logger.Info($"{r.Url} 出队 剩余:{_queue.Count}");
                 return r;
             }
 
@@ -59,12 +59,12 @@ namespace Crawler.Core.Scheduler
                 //去重
                 if (_queue.Contains(r))
                 {
-                    Logger.Warn($"{r.URL} 入队失败,重复");
+                    Logger.Warn($"{r.Url} 入队失败,重复");
                 }
                 else
                 {
                     _queue.Enqueue(r);
-                    Logger.Info($"{r.URL} 入队 深度:{r.Deth} 剩余:{_queue.Count}");
+                    Logger.Info($"{r.Url} 入队 深度:{r.Deth} 剩余:{_queue.Count}");
                 }
             }
 
@@ -125,7 +125,7 @@ namespace Crawler.Core.Scheduler
             var r = new Request(this)
             {
                 Method = options.Method,
-                URL = url,
+                Url = url,
                 Deth = deth,
                 Postdata = options.Data,
                 UserAgent = Config.UserAgent,

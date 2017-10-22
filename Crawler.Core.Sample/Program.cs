@@ -48,13 +48,15 @@ namespace Crawler.Core.Sample
                     {
                         Name = "online",
                         Selectortype = SelectorType.JsonPath,
-                        Selector = "$.data.online"
+                        Selector = "$.data.online",
+                        Type = typeof(int)
                     },
                     new Field
                     {
                         Name = "fanscount",
                         Selectortype = SelectorType.JsonPath,
-                        Selector = "$.data.fans_num"
+                        Selector = "$.data.fans_num",
+                        Type = typeof(int)
                     },
                 },
                 Interval = 0

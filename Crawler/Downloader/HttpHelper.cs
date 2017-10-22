@@ -1,16 +1,4 @@
-﻿/// <summary>
-/// 类说明：HttpHelper类，用来实现Http访问，Post或者Get方式的，直接访问，带Cookie的，带证书的等方式，可以设置代理
-/// 重要提示：请不要自行修改本类，如果因为你自己修改后将无法升级到新版本。如果确实有什么问题请到官方网站提建议，
-/// 我们一定会及时修改
-/// 编码日期：2011-09-20
-/// 编 码 人：苏飞
-/// 联系方式：361983679  
-/// 官方网址：http://www.sufeinet.com/thread-3-1-1.html
-/// 修改日期：2017-01-16
-/// 版 本 号：1.8
-/// </summary>
-
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -29,15 +17,15 @@ namespace Crawler.Core.Downloader
     {
         #region 预定义方变量
         //默认的编码
-        private Encoding encoding = Encoding.Default;
+        private Encoding _encoding = Encoding.Default;
         //Post数据编码
-        private Encoding postencoding = Encoding.Default;
+        private Encoding _postencoding = Encoding.Default;
         //HttpWebRequest对象用来发起请求
-        private HttpWebRequest request = null;
+        private HttpWebRequest _request;
         //获取影响流的数据对象
-        private HttpWebResponse response = null;
+        private HttpWebResponse _response;
         //设置本地的出口ip和端口
-        private IPEndPoint _IPEndPoint = null;
+        private IPEndPoint _ipEndPoint;
         #endregion
 
         #region Public
@@ -73,7 +61,7 @@ namespace Crawler.Core.Downloader
             try
             {
                 //请求数据
-                response = (HttpWebResponse)request.GetResponse();
+                _response = (HttpWebResponse)_request.GetResponse();
 
                 GetData(item, result);
 
@@ -82,7 +70,7 @@ namespace Crawler.Core.Downloader
             {
                 if (ex.Response != null)
                 {
-                    response = (HttpWebResponse)ex.Response;
+                    _response = (HttpWebResponse)ex.Response;
 
                     GetData(item, result);
 
@@ -97,7 +85,7 @@ namespace Crawler.Core.Downloader
                 result.Html = ex.Message;
             }
             if (item.IsToLower) result.Html = result.Html.ToLower();
-            result.Response = response;
+            result.Response = _response;
             return result;
         }
         #endregion
@@ -111,37 +99,37 @@ namespace Crawler.Core.Downloader
         /// <param name="result"></param>
         private void GetData(HttpItem item, HttpResult result)
         {
-            if (response == null)
+            if (_response == null)
             {
                 return;
             }
             #region base
             //获取StatusCode
-            result.StatusCode = response.StatusCode;
+            result.StatusCode = _response.StatusCode;
             //获取StatusDescription
-            result.StatusDescription = response.StatusDescription;
+            result.StatusDescription = _response.StatusDescription;
             //获取Headers
-            result.Header = response.Headers;
+            result.Header = _response.Headers;
             //获取最后访问的URl
-            result.ResponseUri = response.ResponseUri.ToString();
+            result.ResponseUri = _response.ResponseUri.ToString();
             //获取CookieCollection
-            if (response.Cookies != null) result.CookieCollection = response.Cookies;
+            if (_response.Cookies != null) result.CookieCollection = _response.Cookies;
             //获取set-cookie
-            if (response.Headers["set-cookie"] != null) result.Cookie = response.Headers["set-cookie"];
+            if (_response.Headers["set-cookie"] != null) result.Cookie = _response.Headers["set-cookie"];
             #endregion
 
             #region byte
             //处理网页Byte
-            byte[] ResponseByte = GetByte();
+            var responseByte = GetByte();
             #endregion
 
             #region Html
-            if (ResponseByte != null && ResponseByte.Length > 0)
+            if (responseByte != null && responseByte.Length > 0)
             {
                 //设置编码
-                SetEncoding(item, result, ResponseByte);
+                SetEncoding(item, result, responseByte);
                 //得到返回的HTML
-                result.Html = encoding.GetString(ResponseByte);
+                result.Html = _encoding.GetString(responseByte);
             }
             else
             {
@@ -155,16 +143,16 @@ namespace Crawler.Core.Downloader
         /// </summary>
         /// <param name="item">HttpItem</param>
         /// <param name="result">HttpResult</param>
-        /// <param name="ResponseByte">byte[]</param>
-        private void SetEncoding(HttpItem item, HttpResult result, byte[] ResponseByte)
+        /// <param name="responseByte">byte[]</param>
+        private void SetEncoding(HttpItem item, HttpResult result, byte[] responseByte)
         {
             //是否返回Byte类型数据
-            if (item.ResultType == ResultType.Byte) result.ResultByte = ResponseByte;
+            if (item.ResultType == ResultType.Byte) result.ResultByte = responseByte;
             //从这里开始我们要无视编码了
-            if (encoding == null)
+            if (_encoding == null)
             {
-                Match meta = Regex.Match(Encoding.Default.GetString(ResponseByte), "<meta[^<]*charset=([^<]*)[\"']", RegexOptions.IgnoreCase);
-                string c = string.Empty;
+                var meta = Regex.Match(Encoding.Default.GetString(responseByte), "<meta[^<]*charset=([^<]*)[\"']", RegexOptions.IgnoreCase);
+                var c = string.Empty;
                 if (meta != null && meta.Groups.Count > 0)
                 {
                     c = meta.Groups[1].Value.ToLower().Trim();
@@ -173,29 +161,29 @@ namespace Crawler.Core.Downloader
                 {
                     try
                     {
-                        encoding = Encoding.GetEncoding(c.Replace("\"", string.Empty).Replace("'", "").Replace(";", "").Replace("iso-8859-1", "gbk").Trim());
+                        _encoding = Encoding.GetEncoding(c.Replace("\"", string.Empty).Replace("'", "").Replace(";", "").Replace("iso-8859-1", "gbk").Trim());
                     }
                     catch
                     {
-                        if (string.IsNullOrEmpty(response.CharacterSet))
+                        if (string.IsNullOrEmpty(_response.CharacterSet))
                         {
-                            encoding = Encoding.UTF8;
+                            _encoding = Encoding.UTF8;
                         }
                         else
                         {
-                            encoding = Encoding.GetEncoding(response.CharacterSet);
+                            _encoding = Encoding.GetEncoding(_response.CharacterSet);
                         }
                     }
                 }
                 else
                 {
-                    if (string.IsNullOrEmpty(response.CharacterSet))
+                    if (string.IsNullOrEmpty(_response.CharacterSet))
                     {
-                        encoding = Encoding.UTF8;
+                        _encoding = Encoding.UTF8;
                     }
                     else
                     {
-                        encoding = Encoding.GetEncoding(response.CharacterSet);
+                        _encoding = Encoding.GetEncoding(_response.CharacterSet);
                     }
                 }
             }
@@ -206,24 +194,24 @@ namespace Crawler.Core.Downloader
         /// <returns></returns>
         private byte[] GetByte()
         {
-            byte[] ResponseByte = null;
-            using (MemoryStream _stream = new MemoryStream())
+            byte[] responseByte;
+            using (var stream = new MemoryStream())
             {
                 //GZIIP处理
-                if (response.ContentEncoding != null && response.ContentEncoding.Equals("gzip", StringComparison.InvariantCultureIgnoreCase))
+                if (_response.ContentEncoding != null && _response.ContentEncoding.Equals("gzip", StringComparison.InvariantCultureIgnoreCase))
                 {
                     //开始读取流并设置编码方式
-                    new GZipStream(response.GetResponseStream(), CompressionMode.Decompress).CopyTo(_stream, 10240);
+                    new GZipStream(_response.GetResponseStream(), CompressionMode.Decompress).CopyTo(stream, 10240);
                 }
                 else
                 {
                     //开始读取流并设置编码方式
-                    response.GetResponseStream().CopyTo(_stream, 10240);
+                    _response.GetResponseStream().CopyTo(stream, 10240);
                 }
                 //获取Byte
-                ResponseByte = _stream.ToArray();
+                responseByte = stream.ToArray();
             }
-            return ResponseByte;
+            return responseByte;
         }
 
 
@@ -239,55 +227,55 @@ namespace Crawler.Core.Downloader
 
             // 验证证书
             SetCer(item);
-            if (item.IPEndPoint != null)
+            if (item.IpEndPoint != null)
             {
-                _IPEndPoint = item.IPEndPoint;
+                _ipEndPoint = item.IpEndPoint;
                 //设置本地的出口ip和端口
-                request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint(BindIPEndPointCallback);
+                _request.ServicePoint.BindIPEndPointDelegate = BindIpEndPointCallback;
             }
             //设置Header参数
             if (item.Header != null && item.Header.Count > 0) foreach (string key in item.Header.AllKeys)
                 {
-                    request.Headers.Add(key, item.Header[key]);
+                    _request.Headers.Add(key, item.Header[key]);
                 }
             // 设置代理
             SetProxy(item);
-            if (item.ProtocolVersion != null) request.ProtocolVersion = item.ProtocolVersion;
-            request.ServicePoint.Expect100Continue = item.Expect100Continue;
+            if (item.ProtocolVersion != null) _request.ProtocolVersion = item.ProtocolVersion;
+            _request.ServicePoint.Expect100Continue = item.Expect100Continue;
             //请求方式Get或者Post
-            request.Method = item.Method;
-            request.Timeout = item.Timeout;
-            request.KeepAlive = item.KeepAlive;
-            request.ReadWriteTimeout = item.ReadWriteTimeout;
+            _request.Method = item.Method;
+            _request.Timeout = item.Timeout;
+            _request.KeepAlive = item.KeepAlive;
+            _request.ReadWriteTimeout = item.ReadWriteTimeout;
             if (!string.IsNullOrWhiteSpace(item.Host))
             {
-                request.Host = item.Host;
+                _request.Host = item.Host;
             }
-            if (item.IfModifiedSince != null) request.IfModifiedSince = Convert.ToDateTime(item.IfModifiedSince);
+            if (item.IfModifiedSince != null) _request.IfModifiedSince = Convert.ToDateTime(item.IfModifiedSince);
             //Accept
-            request.Accept = item.Accept;
+            _request.Accept = item.Accept;
             //ContentType返回类型
-            request.ContentType = item.ContentType;
+            _request.ContentType = item.ContentType;
             //UserAgent客户端的访问类型，包括浏览器版本和操作系统信息
-            request.UserAgent = item.UserAgent;
+            _request.UserAgent = item.UserAgent;
             // 编码
-            encoding = item.Encoding;
+            _encoding = item.Encoding;
             //设置安全凭证
-            request.Credentials = item.ICredentials;
+            _request.Credentials = item.Credentials;
             //设置Cookie
             SetCookie(item);
             //来源地址
-            request.Referer = item.Referer;
+            _request.Referer = item.Referer;
             //是否执行跳转功能
-            request.AllowAutoRedirect = item.Allowautoredirect;
+            _request.AllowAutoRedirect = item.Allowautoredirect;
             if (item.MaximumAutomaticRedirections > 0)
             {
-                request.MaximumAutomaticRedirections = item.MaximumAutomaticRedirections;
+                _request.MaximumAutomaticRedirections = item.MaximumAutomaticRedirections;
             }
             //设置Post数据
             SetPostData(item);
             //设置最大连接
-            if (item.Connectionlimit > 0) request.ServicePoint.ConnectionLimit = item.Connectionlimit;
+            if (item.Connectionlimit > 0) _request.ServicePoint.ConnectionLimit = item.Connectionlimit;
         }
         /// <summary>
         /// 设置证书
@@ -298,17 +286,17 @@ namespace Crawler.Core.Downloader
             if (!string.IsNullOrWhiteSpace(item.CerPath))
             {
                 //这一句一定要写在创建连接的前面。使用回调的方法进行证书验证。
-                ServicePointManager.ServerCertificateValidationCallback = new System.Net.Security.RemoteCertificateValidationCallback(CheckValidationResult);
+                ServicePointManager.ServerCertificateValidationCallback = CheckValidationResult;
                 //初始化对像，并设置请求的URL地址
-                request = (HttpWebRequest)WebRequest.Create(item.URL);
+                _request = (HttpWebRequest)WebRequest.Create(item.Url);
                 SetCerList(item);
                 //将证书添加到请求里
-                request.ClientCertificates.Add(new X509Certificate(item.CerPath));
+                _request.ClientCertificates.Add(new X509Certificate(item.CerPath));
             }
             else
             {
                 //初始化对像，并设置请求的URL地址
-                request = (HttpWebRequest)WebRequest.Create(item.URL);
+                _request = (HttpWebRequest)WebRequest.Create(item.Url);
                 SetCerList(item);
             }
         }
@@ -322,7 +310,7 @@ namespace Crawler.Core.Downloader
             {
                 foreach (X509Certificate c in item.ClentCertificates)
                 {
-                    request.ClientCertificates.Add(c);
+                    _request.ClientCertificates.Add(c);
                 }
             }
         }
@@ -332,13 +320,13 @@ namespace Crawler.Core.Downloader
         /// <param name="item">Http参数</param>
         private void SetCookie(HttpItem item)
         {
-            if (!string.IsNullOrEmpty(item.Cookie)) request.Headers[HttpRequestHeader.Cookie] = item.Cookie;
+            if (!string.IsNullOrEmpty(item.Cookie)) _request.Headers[HttpRequestHeader.Cookie] = item.Cookie;
             //设置CookieCollection
             if (item.ResultCookieType == ResultCookieType.CookieCollection)
             {
-                request.CookieContainer = new CookieContainer();
+                _request.CookieContainer = new CookieContainer();
                 if (item.CookieCollection != null && item.CookieCollection.Count > 0)
-                    request.CookieContainer.Add(item.CookieCollection);
+                    _request.CookieContainer.Add(item.CookieCollection);
             }
         }
         /// <summary>
@@ -348,11 +336,11 @@ namespace Crawler.Core.Downloader
         private void SetPostData(HttpItem item)
         {
             //验证在得到结果时是否有传入数据
-            if (!request.Method.Trim().ToLower().Contains("get"))
+            if (!_request.Method.Trim().ToLower().Contains("get"))
             {
                 if (item.PostEncoding != null)
                 {
-                    postencoding = item.PostEncoding;
+                    _postencoding = item.PostEncoding;
                 }
                 byte[] buffer = null;
                 //写入Byte类型
@@ -363,22 +351,22 @@ namespace Crawler.Core.Downloader
                 }//写入文件
                 else if (item.PostDataType == PostDataType.FilePath && !string.IsNullOrWhiteSpace(item.Postdata))
                 {
-                    StreamReader r = new StreamReader(item.Postdata, postencoding);
-                    buffer = postencoding.GetBytes(r.ReadToEnd());
+                    StreamReader r = new StreamReader(item.Postdata, _postencoding);
+                    buffer = _postencoding.GetBytes(r.ReadToEnd());
                     r.Close();
                 } //写入字符串
                 else if (!string.IsNullOrWhiteSpace(item.Postdata))
                 {
-                    buffer = postencoding.GetBytes(item.Postdata);
+                    buffer = _postencoding.GetBytes(item.Postdata);
                 }
                 if (buffer != null)
                 {
-                    request.ContentLength = buffer.Length;
-                    request.GetRequestStream().Write(buffer, 0, buffer.Length);
+                    _request.ContentLength = buffer.Length;
+                    _request.GetRequestStream().Write(buffer, 0, buffer.Length);
                 }
                 else
                 {
-                    request.ContentLength = 0;
+                    _request.ContentLength = 0;
                 }
             }
         }
@@ -403,7 +391,7 @@ namespace Crawler.Core.Downloader
                     //建议连接
                     myProxy.Credentials = new NetworkCredential(item.ProxyUserName, item.ProxyPwd);
                     //给当前请求对象
-                    request.Proxy = myProxy;
+                    _request.Proxy = myProxy;
                 }
                 else
                 {
@@ -411,7 +399,7 @@ namespace Crawler.Core.Downloader
                     //建议连接
                     myProxy.Credentials = new NetworkCredential(item.ProxyUserName, item.ProxyPwd);
                     //给当前请求对象
-                    request.Proxy = myProxy;
+                    _request.Proxy = myProxy;
                 }
             }
             else if (isIeProxy)
@@ -420,7 +408,7 @@ namespace Crawler.Core.Downloader
             }
             else
             {
-                request.Proxy = item.WebProxy;
+                _request.Proxy = item.WebProxy;
             }
         }
 
@@ -445,9 +433,9 @@ namespace Crawler.Core.Downloader
         /// <param name="remoteEndPoint"></param>
         /// <param name="retryCount"></param>
         /// <returns></returns>
-        private IPEndPoint BindIPEndPointCallback(ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount)
+        private IPEndPoint BindIpEndPointCallback(ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount)
         {
-            return _IPEndPoint;//端口号
+            return _ipEndPoint;//端口号
         }
         #endregion
     }
@@ -461,7 +449,7 @@ namespace Crawler.Core.Downloader
         /// <summary>
         /// 请求URL必须填写
         /// </summary>
-        public string URL { get; set; }
+        public string Url { get; set; }
 
         /// <summary>
         /// 请求方式默认为GET方式,当为POST方式时必须设置Postdata的值
@@ -607,7 +595,7 @@ namespace Crawler.Core.Downloader
         /// <summary>
         /// 获取或设置请求的身份验证信息。
         /// </summary>
-        public ICredentials ICredentials { get; set; } = CredentialCache.DefaultCredentials;
+        public ICredentials Credentials { get; set; } = CredentialCache.DefaultCredentials;
 
         /// <summary>
         /// 设置请求将跟随的重定向的最大数目
@@ -627,7 +615,7 @@ namespace Crawler.Core.Downloader
         /// <example>
         ///item.IPEndPoint = new IPEndPoint(IPAddress.Parse("192.168.1.1"),80);
         /// </example>
-        public IPEndPoint IPEndPoint { get; set; } = null;
+        public IPEndPoint IpEndPoint { get; set; } = null;
 
         #endregion
     }
@@ -697,7 +685,10 @@ namespace Crawler.Core.Downloader
                         }
                     }
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
                 return string.Empty;
             }
         }

@@ -21,7 +21,7 @@ namespace Crawler.Core.Processor
         int FailCount { get; }
         Logger Logger { get; }
 
-        Config Config { get; set; }
+        Config Config { get; }
         VoidPageDelegate OnProcessScanPage { get; set; }
         VoidPageDelegate OnProcessHelperPage { get; set; }
         VoidPageDelegate OnProcessContentPage { get; set; }
@@ -40,7 +40,7 @@ namespace Crawler.Core.Processor
         public int ExtractCount { get; private set; }
         public int FailCount { get; private set; }
         public Logger Logger => Crawler.Logger;
-        public Config Config { get; set; }
+        public Config Config => Crawler.Config;
         public VoidPageDelegate OnProcessScanPage { get; set; }
         public VoidPageDelegate OnProcessHelperPage { get; set; }
         public VoidPageDelegate OnProcessContentPage { get; set; }
@@ -49,20 +49,20 @@ namespace Crawler.Core.Processor
 
         public void Handle(Page page)
         {
-            Logger.Info($"开始处理 {page.Request.URL}");
-            if (page.Request.URL == Config.ScanUrls)
+            Logger.Info($"开始处理 {page.Request.Url}");
+            if (page.Request.Url == Config.ScanUrls)
             {
                 OnProcessScanPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
-            else if (Config.HelperUrlRegexes.IsMatch(page.Request.URL))
+            else if (Config.HelperUrlRegexes.IsMatch(page.Request.Url))
             {
                 Logger.Info($"列表页");
                 //识别列表页
                 OnProcessHelperPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
-            else if (Config.ContentUrlRegexes.IsMatch(page.Request.URL))
+            else if (Config.ContentUrlRegexes.IsMatch(page.Request.Url))
             {
                 Logger.Info($"内容页");
                 //识别内容页
@@ -86,7 +86,7 @@ namespace Crawler.Core.Processor
                 Extract(page);
                 Logger.Info($"抽取完成");
                 OnComplete?.Invoke(page);
-                Logger.Info($"{page.Request.URL} 抽取到{page.Results.Count}结果");
+                Logger.Info($"{page.Request.Url} 抽取到{page.Results.Count}结果");
                 ExtractCount++;
             }
 
@@ -118,7 +118,7 @@ namespace Crawler.Core.Processor
 
                 if (Config.HelperUrlRegexes.IsMatch(url) || Config.ContentUrlRegexes.IsMatch(url))
                 {
-                    Logger.Info($"在[{page.Request.URL}]发现新网页[{url}]");
+                    Logger.Info($"在[{page.Request.Url}]发现新网页[{url}]");
                     page.Request.Schduler.AddUrl(url, page.Request.Deth + 1);
                 }
             }
@@ -141,7 +141,7 @@ namespace Crawler.Core.Processor
                         case SourceType.AttachedUrl:
                             throw new NotImplementedException();
                         case SourceType.UrlContext:
-                            source = page.Request.URL;
+                            source = page.Request.Url;
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
@@ -168,7 +168,7 @@ namespace Crawler.Core.Processor
                 }
                 catch (Exception e)
                 {
-                    Logger.Error($"{page.Request.URL} 抽取 {field.Selectortype} {field.Name} 失败 \r\n{e}");
+                    Logger.Error($"{page.Request.Url} 抽取 {field.Selectortype} {field.Name} 失败 \r\n{e}");
                     FailCount++;
                     return;
                 }
