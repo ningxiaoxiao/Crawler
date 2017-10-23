@@ -1,12 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Crawler.Core;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-using Crawler.Core.Downloader;
 
 namespace Crawler.Core.Tests
 {
@@ -56,7 +49,7 @@ namespace Crawler.Core.Tests
             crawler.Processor.OnProcessScanPage = p =>
             {
                 var r=new Regex("data-rid=\'([1-9]*)\'");
-                var ms = r.Matches(p.Raw);
+                var ms = r.Matches(p.Html);
                 foreach (Match m in ms)
                 {
                     crawler.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 
@@ -24,8 +25,8 @@ namespace Crawler.Core.Sample
                 ScanUrls = "https://www.douyu.com/directory/all",
                 Domains = new[]
                 {
-                    "douyu.com",
-                    "douyucdn.cn",
+                    ".douyu.com",
+                    ".douyucdn.cn",
                 },
                 ContentUrlRegexes = new Regex("room"),
                 HelperUrlRegexes = new Regex("page"),
@@ -37,26 +38,34 @@ namespace Crawler.Core.Sample
                         Name = "title",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.room_name"
-                    },
-                    new Field
+                    },new Field
                     {
                         Name = "username",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.owner_name"
-                    },
-                    new Field
+                    },new Field
                     {
                         Name = "online",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.online",
                         Type = typeof(int)
-                    },
-                    new Field
+                    },new Field
                     {
                         Name = "fanscount",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.fans_num",
                         Type = typeof(int)
+                    },new Field
+                    {
+                        Name = "cate",
+                        Selector = "$.data.cate_name",
+                        Selectortype = SelectorType.JsonPath
+                    }, new Field
+                    {
+                        Name = "startat",
+                        Selectortype = SelectorType.JsonPath,
+                        Selector = "$.data.start_time",
+                        Type = typeof(DateTime)
                     },
                 },
                 Interval = 0
@@ -84,8 +93,10 @@ namespace Crawler.Core.Sample
 
                 var m = r.Match(p.Html);
                 var count = int.Parse(m.Groups[1].Value.Replace("\"", string.Empty));
-
-                for (int i = 0; i < 2; i++)
+#if DEBUG
+                count = 2;
+#endif
+                for (int i = 0; i < count; i++)
                 {
                     crawler.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1", p.Request.Deth + 1);
                 }

@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using Crawler.Core;
+using Crawler.Core.Pipeline;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -35,44 +40,68 @@ namespace Crawler.Core.Pipeline
         private readonly string _sqlConString;
 
 
-        public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='1234';charset='utf8';pooling=true")
+        public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='123456';charset='utf8';pooling=true")
         {
             _sqlConString = sqlcon;
 
-
             var mySqlConnection = new MySqlConnection(_sqlConString);
-            mySqlConnection.Open();
-
-            //todo 检查数据库与表是不是存在
             try
             {
-                var cmd = new MySqlCommand("CREATE DATABASE " + DatabaseName, mySqlConnection);
-                cmd.ExecuteNonQuery();
+                mySqlConnection.Open();
             }
             catch (Exception e)
             {
-                Logger.Error(e);
+                throw e;
             }
-            mySqlConnection.ChangeDatabase(DatabaseName);
+
+
             try
             {
-                var cols = string.Empty;
-
-                foreach (var field in Config.Fields)
+                mySqlConnection.ChangeDatabase(DatabaseName);
+            }
+            catch
+            {
+                Logger.Info("更改数据库到[" + DatabaseName + "]失败,开始新建数据库");
+                try
                 {
-                    //todo 数据类型自动翻译
-                    cols += $"{field.Name} {field.Type.ToString().Replace("System.", "").Replace("String", "text").ToUpper()} ,";
+                    var c = new MySqlCommand("CREATE DATABASE " + DatabaseName, mySqlConnection);
+                    c.ExecuteNonQuery();
                 }
+                catch
+                {
+                    throw new Exception("无法创建数据库");
+                }
+                mySqlConnection.ChangeDatabase(DatabaseName);
+                Logger.Info("自动新建数据库完成:" + DatabaseName);
+            }
+            var cmd = new MySqlCommand("show tables", mySqlConnection);
+            var tabels = cmd.ExecuteReader();
+            var haveTable = false;
+            while (tabels.Read())
+            {
+                var tablename = tabels.GetString(0);
+                if (tablename != DataTableName) continue;
+                haveTable = true;
+                break;
+            }
+            tabels.Close();
+            if (haveTable) return;
+            try
+            {
+                Logger.Info("没有表[" + DataTableName + "]新建中...");
+                var cols = Config.Fields.Aggregate(string.Empty, (current, field) => current + $"{field.Name} {field.SqlType} ,");
 
-                var cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,{cols + "PRIMARY KEY (id)"})", mySqlConnection);
+                cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,{cols + "PRIMARY KEY (id)"})", mySqlConnection);
                 cmd.ExecuteNonQuery();
             }
-            catch (Exception e)
+            catch
             {
-                Logger.Error(e);
+
+
+                throw new Exception("表[" + DataTableName + "]新建失败");
             }
 
-
+            Logger.Info("表[" + DataTableName + "]新建成功");
 
         }
 

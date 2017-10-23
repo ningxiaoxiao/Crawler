@@ -18,7 +18,6 @@ namespace Crawler.Core
         public IProcessor Processor { get; private set; }
         public ISchduler Schduler { get; private set; }
 
-        public string Identity { get; private set; }
 
         public static Config Config { get; private set; }
 
@@ -68,35 +67,37 @@ namespace Crawler.Core
 
         private void Task(object state)
         {
-            Logger.Info($"{Thread.CurrentThread.ManagedThreadId}号 线程启动");
+            Logger.Info($"[{Thread.CurrentThread.ManagedThreadId}]号 线程启动");
+            var sleep = false;
+            var sleeptime = Config.Interval;
+
             while (true)
             {
                 var sw = new Stopwatch();
 
                 sw.Start();
                 Request r;
-                int sleeptime = 0;
+                int waittime = 0;
                 do
                 {
                     r = Schduler.GetNext();
                     if (r == null)
                     {
                         Thread.Sleep(1000);
-                        sleeptime += 1000;
-                        if (sleeptime > 30000)
+                        waittime += 1000;
+                        if (waittime >= 30000)
                         {
-                            Logger.Info($"已经连续30秒没有得到新的请求,{Thread.CurrentThread.ManagedThreadId}号线程退出");
-                            return;
+                            Logger.Info($"已经连续30秒没有得到新的请求,[{Thread.CurrentThread.ManagedThreadId}]号线程进入睡眠");
+                            sleep = true;
+                            break;
                         }
                     }
                     else
                     {
-                        sleeptime = 0;
+                        waittime = 0;
                     }
 
                 } while (r == null);
-
-
 
                 Downloader.Download(r);
                 sw.Stop();
@@ -107,7 +108,22 @@ namespace Crawler.Core
                             $"解析失败:{Processor.FailCount} 跳过解析:{Processor.SkipCount} " +
                             $"总计:{Downloader.SuccessCount + Downloader.FailCount} " +
                             $"用时:{sw.ElapsedMilliseconds}ms 激活线程数:{twc - tc}");
+                if (!sleep) continue;
+                Logger.Info("睡眠中.睡眠时间:" + sleeptime);
+                while (true)
+                {
+                    
+                    Thread.Sleep(5000);
+                    sleeptime -= 5;
+                    if (sleeptime <= 0)
+                        break;
+
+                }
+                Logger.Info("睡眠完成");
+                sleep = false;
+                sleeptime = Config.Interval;
             }
+
 
         }
         protected void OnBeforeCrawl()

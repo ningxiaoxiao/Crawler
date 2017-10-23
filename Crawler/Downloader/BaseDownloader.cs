@@ -26,7 +26,6 @@ namespace Crawler.Core.Downloader
 
         public void Download(Request r)
         {
-
             if (r == null) return;
             r.LeftTryTimes--;
 

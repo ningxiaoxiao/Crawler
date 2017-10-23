@@ -1,0 +1,10 @@
+﻿{
+
+    "System.Int32": "int",
+    "System.Float": "float",
+
+    "System.DateTime": "TIMESTAMP",
+    "System.String": "text",
+
+    "System.Boolean": "bit"
+}

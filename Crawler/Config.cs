@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 
 namespace Crawler.Core
 {
@@ -15,6 +17,7 @@ namespace Crawler.Core
 
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
+        public string Name { get; set; } = "crawler";
         private string[] _domains;
         /// <summary>
         /// 可以发起请求的合法域,默认是scanurls的host
@@ -71,6 +74,12 @@ namespace Crawler.Core
 
     public class Field
     {
+        private JObject _json;
+        public Field()
+        {
+            _json = JObject.Parse(File.ReadAllText("tomysql.json"));
+        }
+
         /// <summary>
         /// 给抽取项起个名字
         /// </summary>
@@ -98,6 +107,9 @@ namespace Crawler.Core
         /// 默认值是string类型
         /// </summary>
         public Type Type { get; set; } = typeof(string);
+
+        public string SqlType => _json[Type.ToString()].Value<string>().ToUpper();
+
         /// <summary>
         /// 设置抽取项是否是临时的(临时的抽取项不会保存到爬取结果中)
         /// </summary>
