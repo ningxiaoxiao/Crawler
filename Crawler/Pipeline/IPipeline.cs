@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using Crawler.Core;
-using Crawler.Core.Pipeline;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using NLog;
@@ -24,6 +19,9 @@ namespace Crawler.Core.Pipeline
         public Logger Logger => Crawler.Logger;
         public Config Config => Crawler.Config;
 
+        public const string DatabaseName = "crawler";
+        public string DataTableName => Config.Name + "ExtractResults";
+
         public void Handle(Page p)
         {
             //过虑一次
@@ -38,6 +36,7 @@ namespace Crawler.Core.Pipeline
     public class MySqlPipline : BasePipeline
     {
         private readonly string _sqlConString;
+
 
 
         public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='123456';charset='utf8';pooling=true")
@@ -89,24 +88,25 @@ namespace Crawler.Core.Pipeline
             try
             {
                 Logger.Info("没有表[" + DataTableName + "]新建中...");
+                if (Config.Fields == null || Config.Fields.Length == 0)
+                {
+                    Logger.Warn("没有抽取项,没有新建表");
+                    return;
+                }
                 var cols = Config.Fields.Aggregate(string.Empty, (current, field) => current + $"{field.Name} {field.SqlType} ,");
 
                 cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,{cols + "PRIMARY KEY (id)"})", mySqlConnection);
                 cmd.ExecuteNonQuery();
             }
-            catch
+            catch (Exception e)
             {
 
-
-                throw new Exception("表[" + DataTableName + "]新建失败");
+                throw new Exception("表[" + DataTableName + "]新建失败:\r\n" + e);
             }
 
             Logger.Info("表[" + DataTableName + "]新建成功");
 
         }
-
-        private const string DatabaseName = "crawler";
-        private const string DataTableName = "result";
 
         public override void OnHandel(Page p)
         {
@@ -139,16 +139,16 @@ namespace Crawler.Core.Pipeline
         }
     }
 
-    public class MangoDBPipline : BasePipeline
+    public class MangoPipline : BasePipeline
     {
         private readonly IMongoCollection<BsonDocument> _collection;
 
-        public MangoDBPipline()
+        public MangoPipline()
         {
             //建立连接
             var client = new MongoClient();
             //建立数据库
-            var database = client.GetDatabase("TestDb");
+            var database = client.GetDatabase("crawler");
             //建立collection
             _collection = database.GetCollection<BsonDocument>("results");
         }
@@ -170,7 +170,7 @@ namespace Crawler.Core.Pipeline
             }
             catch (Exception e)
             {
-                Logger.Debug(e, "保存出现问题");
+                Logger.Error(e, "保存出现问题");
             }
 
             Logger.Info("保存结束");

@@ -14,12 +14,13 @@ namespace Crawler.Core.Test
         {
 
             var c = new Crawler();
-            c.Setup(new Config() { ScanUrls = "https://www.baidu.com/img/baidu.svg" });
-
+            c.Setup(new Config {ScanUrls = "http://www.baidu.com" });
+            c.Schduler.AddScanUrl("https://www.baidu.com");
 
             c.Downloader.Download(c.Schduler.GetNext());
 
-            Logger.LogMessage(c.Schduler.GetCookie("BAIDUID", "www.baidu.com"));
+            Assert.AreEqual("zh", c.Schduler.GetCookie("local", "baidu.com"));
+
         }
     }
 }

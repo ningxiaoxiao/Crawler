@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Crawler.Core.Downloader;
 using Crawler.Core.Processor;
 
@@ -37,7 +38,7 @@ namespace Crawler.Core
         public string ContextData { get; set; }
 
 
-        public List<Result> Results { get; } = new List<Result>();
+        public ExtractResults Results { get; } = new ExtractResults();
 
         /// <summary>
         /// 跳过抽取
@@ -55,5 +56,19 @@ namespace Crawler.Core
         /// 结果不会被保存到数据库中
         /// </summary>
         public bool SkipSave { get; set; } = false;
+    }
+    public class ExtractResults : Dictionary<String, Result>, IEnumerable<Result>
+    {
+        public void Add(Result r)
+        {
+            this.Add(r.Key, r);
+
+        }
+
+        public new IEnumerator<Result> GetEnumerator()
+        {
+            return Values.GetEnumerator();
+        }
+
     }
 }

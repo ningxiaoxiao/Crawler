@@ -39,7 +39,6 @@ namespace Crawler.Core.Tests
                         Selector = "$.data.fans_num"
                     },
                 },
-                Interval = 0
             };
 
             var crawler=new Crawler();
@@ -56,7 +55,6 @@ namespace Crawler.Core.Tests
                 }
             };
 
-            crawler.Run();
         }
     }
 }

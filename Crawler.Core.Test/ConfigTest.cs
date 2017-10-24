@@ -1,25 +1,17 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json;
 
-namespace Crawler.Core.Sample
+namespace Crawler.Core.Test
 {
-    class Program
+    [TestClass]
+    public class ConfigTest
     {
-        private static Crawler crawler;
-        static void Main(string[] args)
+        [TestMethod]
+        public void ConfigSerializeTest()
         {
-            douyuSample();
-            Console.WriteLine("end");
-            Console.ReadKey();
-        }
-
-
-        static void douyuSample()
-        {
-            //https://www.douyu.com/directory/all
-            //https://www.douyu.com/directory/all?page=1&isAjax=1
-            //http://open.douyucdn.cn/api/RoomApi/room/
-            #region config
+            #region 序列化
             var c = new Config
             {
                 ScanUrls = "https://www.douyu.com/directory/all",
@@ -69,43 +61,17 @@ namespace Crawler.Core.Sample
                     },
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now+new TimeSpan(0,0,0,5),
+                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
             };
             #endregion
-            crawler = new Crawler();
 
-            crawler.Setup(c);
-            crawler.Processor.OnProcessHelperPage = p =>
-            {
+            var j = JsonConvert.SerializeObject(c);
+            var output = j.ToString();
+            var deC = JsonConvert.DeserializeObject<Config>(output,new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore});
 
-                var r = new Regex("\" data-rid=\'([1-9]*)\'");
-                var ms = r.Matches(p.Html);
-                foreach (Match m in ms)
-                {
-                    crawler.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value, p.Request.Deth + 1);
-                }
+            Assert.AreEqual(c.ScanUrls,deC.ScanUrls);
 
-                p.SkipFindUrl = true;
-
-            };
-            crawler.Processor.OnProcessScanPage = p =>
-            {
-                var r = new Regex(@"count:(.+),");
-
-                var m = r.Match(p.Html);
-                var count = int.Parse(m.Groups[1].Value.Replace("\"", string.Empty));
-#if DEBUG
-               // count = 0;
-#endif
-                for (int i = 0; i < count; i++)
-                {
-                    crawler.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1", p.Request.Deth + 1);
-                }
-                p.SkipFindUrl = true;
-
-            };
-
-
+            Console.WriteLine(output);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace Crawler.Core.Scheduler
         public string GetCookie(string name, string domain)
         {
             var cs = _cookies.GetCookies(new Uri("http://" + domain));
-            return cs[name].Value;
+            return cs[name] == null ? null : cs[name].Value;
         }
 
         public void AddRequest(Request r)
@@ -79,7 +79,12 @@ namespace Crawler.Core.Scheduler
             lock (_lock)
             {
                 if (cc.Count == 0) return;
-                _cookies.Add(cc);
+
+                foreach (Cookie c in cc)
+                {
+                    _cookies.Add(c);
+                }
+                
             }
 
         }
@@ -98,6 +103,9 @@ namespace Crawler.Core.Scheduler
 
         public void AddUrl(string url, int deth = 0, Options options = null)
         {
+
+            if (!url.Contains("http"))
+                throw new Exception("没有加http or https");
 
             var domainchcke = false;
             foreach (var domain in Config.Domains)
@@ -121,6 +129,7 @@ namespace Crawler.Core.Scheduler
                 options = new Options();//使用默认值
             }
 
+            
 
             var r = new Request(this)
             {
@@ -128,8 +137,8 @@ namespace Crawler.Core.Scheduler
                 Url = url,
                 Deth = deth,
                 Postdata = options.Data,
-                UserAgent = Config.UserAgent,
                 Timeout = Config.Timeout,
+                UserAgent = Config.UserAgent,
                 Header = new WebHeaderCollection
                 {
                     _headers,
@@ -137,9 +146,6 @@ namespace Crawler.Core.Scheduler
                 },
                 CookieCollection = _cookies.GetCookies(new Uri(url)),
             };
-
-
-
 
             AddRequest(r);
 

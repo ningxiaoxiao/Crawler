@@ -45,7 +45,7 @@ namespace Crawler.Core.Downloader
             }
             SuccessCount++;
             Logger.Info($"下载 {p.Request.Url} 成功");
-            p.Timestamp = DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss");
+            p.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)
                 beforR.Schduler.AddCookie(p.CookieCollection);

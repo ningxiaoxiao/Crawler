@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,6 +11,12 @@ using System.Text.RegularExpressions;
 
 namespace Crawler.Core.Downloader
 {
+    public struct pairItem
+    {
+        public string key;
+        public string value;
+    };
+
     /// <summary>
     /// Http连接操作帮助类
     /// </summary>
@@ -28,6 +35,348 @@ namespace Crawler.Core.Downloader
         private IPEndPoint _ipEndPoint;
         #endregion
 
+     
+        // parse the Set-Cookie string (in http response header) to cookies
+        // Note: auto omit to parse the abnormal cookie string
+        // normal example for 'setCookieStr':
+        // MSPOK= ; expires=Thu, 30-Oct-1980 16:00:00 GMT;domain=login.live.com;path=/;HTTPOnly= ;version=1,PPAuth=Cuyf3Vp2wolkjba!TOr*0v22UMYz36ReuiwxZZBc8umHJYPlRe4qupywVFFcIpbJyvYZ5ZDLBwV4zRM1UCjXC4tUwNuKvh21iz6gQb0Tu5K7Z62!TYGfowB9VQpGA8esZ7iCRucC7d5LiP3ZAv*j4Z3MOecaJwmPHx7!wDFdAMuQUZURhHuZWJiLzHP1j8ppchB2LExnlHO6IGAdZo1f0qzSWsZ2hq*yYP6sdy*FdTTKo336Q1B0i5q8jUg1Yv6c2FoBiNxhZSzxpuU0WrNHqSytutP2k4!wNc6eSnFDeouX; domain=login.live.com;secure= ;path=/;HTTPOnly= ;version=1,PPLState=1; domain=.live.com;path=/;version=1,MSPShared=1; expires=Wed, 30-Dec-2037 16:00:00 GMT;domain=login.live.com;path=/;HTTPOnly= ;version=1,MSPPre= ;domain=login.live.com;path=/;Expires=Thu, 30-Oct-1980 16:00:00 GMT,MSPCID= ; HTTPOnly= ; domain=login.live.com;path=/;Expires=Thu, 30-Oct-1980 16:00:00 GMT,RPSTAuth=EwDoARAnAAAUWkziSC7RbDJKS1VkhugDegv7L0eAAOfCAY2+pKwbV5zUlu3XmBbgrQ8EdakmdSqK9OIKfMzAbnU8fuwwEi+FKtdGSuz/FpCYutqiHWdftd0YF21US7+1bPxuLJ0MO+wVXB8GtjLKZaA0xCXlU5u01r+DOsxSVM777DmplaUc0Q4O1+Pi9gX9cyzQLAgRKmC/QtlbVNKDA2YAAAhIwqiXOVR/DDgBocoO/n0u48RFGh79X2Q+gO4Fl5GMc9Vtpa7SUJjZCCfoaitOmcxhEjlVmR/2ppdfJx3Ykek9OFzFd+ijtn7K629yrVFt3O9q5L0lWoxfDh5/daLK7lqJGKxn1KvOew0SHlOqxuuhYRW57ezFyicxkxSI3aLxYFiqHSu9pq+TlITqiflyfcAcw4MWpvHxm9on8Y1dM2R4X3sxuwrLQBpvNsG4oIaldTYIhMEnKhmxrP6ZswxzteNqIRvMEKsxiksBzQDDK/Cnm6QYBZNsPawc6aAedZioeYwaV3Z/i3tNrAUwYTqLXve8oG6ZNXL6WLT/irKq1EMilK6Cw8lT3G13WYdk/U9a6YZPJC8LdqR0vAHYpsu/xRF39/On+xDNPE4keIThJBptweOeWQfsMDwvgrYnMBKAMjpLZwE=; domain=.live.com;path=/;HTTPOnly= ;version=1,RPSTAuthTime=1328679636; domain=login.live.com;path=/;HTTPOnly= ;version=1,MSPAuth=2OlAAMHXtDIFOtpaK1afG2n*AAxdfCnCBlJFn*gCF8gLnCa1YgXEfyVh2m9nZuF*M7npEwb4a7Erpb*!nH5G285k7AswJOrsr*gY29AVAbsiz2UscjIGHkXiKrTvIzkV2M; domain=.live.com;path=/;HTTPOnly= ;version=1,MSPProf=23ci9sti6DZRrkDXfTt1b3lHhMdheWIcTZU2zdJS9!zCloHzMKwX30MfEAcCyOjVt*5WeFSK3l2ZahtEaK7HPFMm3INMs3r!JxI8odP9PYRHivop5ryohtMYzWZzj3gVVurcEr5Bg6eJJws7rXOggo3cR4FuKLtXwz*FVX0VWuB5*aJhRkCT1GZn*L5Pxzsm9X; domain=.live.com;path=/;HTTPOnly= ;version=1,MSNPPAuth=CiGSMoUOx4gej8yQkdFBvN!gvffvAhCPeWydcrAbcg!O2lrhVb4gruWSX5NZCBPsyrtZKmHLhRLTUUIxxPA7LIhqW5TCV*YcInlG2f5hBzwzHt!PORYbg79nCkvw65LKG399gRGtJ4wvXdNlhHNldkBK1jVXD4PoqO1Xzdcpv4sj68U6!oGrNK5KgRSMXXpLJmCeehUcsRW1NmInqQXpyanjykpYOcZy0vq!6PIxkj3gMaAvm!1vO58gXM9HX9dA0GloNmCDnRv4qWDV2XKqEKp!A7jiIMWTmHup1DZ!*YCtDX3nUVQ1zAYSMjHmmbMDxRJECz!1XEwm070w16Y40TzuKAJVugo!pyF!V2OaCsLjZ9tdGxGwEQRyi0oWc*Z7M0FBn8Fz0Dh4DhCzl1NnGun9kOYjK5itrF1Wh17sT!62ipv1vI8omeu0cVRww2Kv!qM*LFgwGlPOnNHj3*VulQOuaoliN4MUUxTA4owDubYZoKAwF*yp7Mg3zq5Ds2!l9Q$$; domain=.live.com;path=/;HTTPOnly= ;version=1,MH=MSFT; domain=.live.com;path=/;version=1,MHW=; expires=Thu, 30-Oct-1980 16:00:00 GMT;domain=.live.com;path=/;version=1,MHList=; expires=Thu, 30-Oct-1980 16:00:00 GMT;domain=.live.com;path=/;version=1,NAP=V=1.9&E=bea&C=zfjCKKBD0TqjZlWGgRTp__NiK08Lme_0XFaiKPaWJ0HDuMi2uCXafQ&W=1;domain=.live.com;path=/,ANON=A=DE389D4D076BF47BCAE4DC05FFFFFFFF&E=c44&W=1;domain=.live.com;path=/,MSPVis=$9;domain=login.live.com;path=/,pres=; expires=Thu, 30-Oct-1980 16:00:00 GMT;domain=.live.com;path=/;version=1,LOpt=0; domain=login.live.com;path=/;version=1,WLSSC=EgBnAQMAAAAEgAAACoAASfCD+8dUptvK4kvFO0gS3mVG28SPT3Jo9Pz2k65r9c9KrN4ISvidiEhxXaPLCSpkfa6fxH3FbdP9UmWAa9KnzKFJu/lQNkZC3rzzMcVUMjbLUpSVVyscJHcfSXmpGGgZK4ZCxPqXaIl9EZ0xWackE4k5zWugX7GR5m/RzakyVIzWAFwA1gD9vwYA7Vazl9QKMk/UCjJPECcAAAoQoAAAFwBjcmlmYW4yMDAzQGhvdG1haWwuY29tAE8AABZjcmlmYW4yMDAzQGhvdG1haWwuY29tAAAACUNOAAYyMTM1OTIAAAZlCAQCAAB3F21AAARDAAR0aWFuAAR3YW5nBMgAAUkAAAAAAAAAAAAAAaOKNpqLi/UAANQKMk/Uf0RPAAAAAAAAAAAAAAAADgA1OC4yNDAuMjM2LjE5AAUAAAAAAAAAAAAAAAABBAABAAABAAABAAAAAAAAAAA=; domain=.live.com;secure= ;path=/;HTTPOnly= ;version=1,MSPSoftVis=@72198325083833620@:@; domain=login.live.com;path=/;version=1
+        // here now support parse the un-correct Set-Cookie:
+        // MSPRequ=/;Version=1;version&lt=1328770452&id=250915&co=1; path=/;version=1,MSPVis=$9; Version=1;version=1$250915;domain=login.live.com;path=/,MSPSoftVis=@72198325083833620@:@; domain=login.live.com;path=/;version=1,MSPBack=1328770312; domain=login.live.com;path=/;version=1
+        public CookieCollection parseSetCookie(string setCookieStr, string curDomain)
+        {
+            CookieCollection parsedCookies = new CookieCollection();
+
+            // process for expires and Expires field, for it contains ','
+            //refer: http://www.yaosansi.com/post/682.html
+            // may contains expires or Expires, so following use xpires
+            string commaReplaced = Regex.Replace(setCookieStr, @"xpires=\w{3},\s\d{2}-\w{3}-\d{4}", new MatchEvaluator(_processExpireField));
+            string[] cookieStrArr = commaReplaced.Split(',');
+            foreach (string cookieStr in cookieStrArr)
+            {
+                Cookie ck = new Cookie();
+                // recover it back
+                string recoveredCookieStr = Regex.Replace(cookieStr, @"xpires=\w{3}" + replacedChar + @"\s\d{2}-\w{3}-\d{4}", new MatchEvaluator(_recoverExpireField));
+                if (parseSingleCookie(recoveredCookieStr, ref ck))
+                {
+                    if (needAddThisCookie(ck, curDomain))
+                    {
+                        parsedCookies.Add(ck);
+                    }
+                }
+            }
+
+            return parsedCookies;
+        }//parseSetCookie
+         //replace ',' with replacedChar
+        private string _processExpireField(Match foundExpire)
+        {
+            string replacedComma = "";
+            replacedComma = foundExpire.Value.ToString().Replace(',', replacedChar);
+            return replacedComma;
+        }
+        // replace the replacedChar back to original ','
+        private string _recoverExpireField(Match foundPprocessedExpire)
+        {
+            string recovedStr = "";
+            recovedStr = foundPprocessedExpire.Value.Replace(replacedChar, ',');
+            return recovedStr;
+        }
+        const char replacedChar = '_';
+        private bool needAddThisCookie(Cookie ck, string curDomain)
+        {
+            bool needAdd = false;
+
+            if ((ck == null) || (ck.Name == ""))
+            {
+                needAdd = false;
+            }
+            else
+            {
+                if (ck.Domain != "")
+                {
+                    needAdd = true;
+                }
+                else// ck.Domain == ""
+                {
+                    if (curDomain != "")
+                    {
+                        ck.Domain = curDomain;
+                        needAdd = true;
+                    }
+                    else // curDomain == ""
+                    {
+                        // not set current domain, omit this
+                        // should not add empty domain cookie, for this will lead execute CookieContainer.Add() fail !!!
+                        needAdd = false;
+                    }
+                }
+            }
+
+            return needAdd;
+        }
+        // parse Set-Cookie string part into cookies
+        // leave current domain to empty, means omit the parsed cookie, which is not set its domain value
+        public CookieCollection parseSetCookie(string setCookieStr)
+        {
+            return parseSetCookie(setCookieStr, "");
+        }
+        // parse cookie field expression
+        public bool parseCookieField(string ckFieldExpr, out pairItem pair)
+        {
+            bool parsedOK = false;
+
+            if (ckFieldExpr == "")
+            {
+                pair.key = "";
+                pair.value = "";
+                parsedOK = false;
+            }
+            else
+            {
+                ckFieldExpr = ckFieldExpr.Trim();
+
+                //some specials: secure/httponly
+                if (ckFieldExpr.ToLower() == "httponly")
+                {
+                    pair.key = "httponly";
+                    //pair.value = "";
+                    pair.value = "true";
+                    parsedOK = true;
+                }
+                else if (ckFieldExpr.ToLower() == "secure")
+                {
+                    pair.key = "secure";
+                    //pair.value = "";
+                    pair.value = "true";
+                    parsedOK = true;
+                }
+                else // normal cookie field
+                {
+                    int equalPos = ckFieldExpr.IndexOf('=');
+                    if (equalPos > 0) // is valid expression
+                    {
+                        pair.key = ckFieldExpr.Substring(0, equalPos);
+                        pair.key = pair.key.Trim();
+                        if (isValidCookieField(pair.key))
+                        {
+                            // only process while is valid cookie field
+                            pair.value = ckFieldExpr.Substring(equalPos + 1);
+                            pair.value = pair.value.Trim();
+                            parsedOK = true;
+                        }
+                        else
+                        {
+                            pair.key = "";
+                            pair.value = "";
+                            parsedOK = false;
+                        }
+                    }
+                    else
+                    {
+                        pair.key = "";
+                        pair.value = "";
+                        parsedOK = false;
+                    }
+                }
+            }
+
+            return parsedOK;
+        }
+        public bool isValidCookieField(string cookieKey)
+        {
+            return cookieFieldList.Contains(cookieKey.ToLower());
+        }
+        List<string> cookieFieldList = new List<string>();
+        //add recognized cookie field: expires/domain/path/secure/httponly/version, into cookie
+        public bool addFieldToCookie(ref Cookie ck, pairItem pairInfo)
+        {
+            bool added = false;
+            if (pairInfo.key != "")
+            {
+                string lowerKey = pairInfo.key.ToLower();
+                switch (lowerKey)
+                {
+                    case "expires":
+                        DateTime expireDatetime;
+                        if (DateTime.TryParse(pairInfo.value, out expireDatetime))
+                        {
+                            // note: here coverted to local time: GMT +8
+                            ck.Expires = expireDatetime;
+
+                            //update expired filed
+                            if (DateTime.Now.Ticks > ck.Expires.Ticks)
+                            {
+                                ck.Expired = true;
+                            }
+
+                            added = true;
+                        }
+                        break;
+                    case "domain":
+                        ck.Domain = pairInfo.value;
+                        added = true;
+                        break;
+                    case "secure":
+                        ck.Secure = true;
+                        added = true;
+                        break;
+                    case "path":
+                        ck.Path = pairInfo.value;
+                        added = true;
+                        break;
+                    case "httponly":
+                        ck.HttpOnly = true;
+                        added = true;
+                        break;
+                    case "version":
+                        int versionValue;
+                        if (int.TryParse(pairInfo.value, out versionValue))
+                        {
+                            ck.Version = versionValue;
+                            added = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return added;
+        }//addFieldToCookie
+        //parseCookieField
+        //parse single cookie string to a cookie
+        //example:
+        //MSPShared=1; expires=Wed, 30-Dec-2037 16:00:00 GMT;domain=login.live.com;path=/;HTTPOnly= ;version=1
+        //PPAuth=CkLXJYvPpNs3w!fIwMOFcraoSIAVYX3K!CdvZwQNwg3Y7gv74iqm9MqReX8XkJqtCFeMA6GYCWMb9m7CoIw!ID5gx3pOt8sOx1U5qQPv6ceuyiJYwmS86IW*l3BEaiyVCqFvju9BMll7!FHQeQholDsi0xqzCHuW!Qm2mrEtQPCv!qF3Sh9tZDjKcDZDI9iMByXc6R*J!JG4eCEUHIvEaxTQtftb4oc5uGpM!YyWT!r5jXIRyxqzsCULtWz4lsWHKzwrNlBRbF!A7ZXqXygCT8ek6luk7rarwLLJ!qaq2BvS; domain=login.live.com;secure= ;path=/;HTTPOnly= ;version=1
+        public bool parseSingleCookie(string cookieStr, ref Cookie ck)
+        {
+            bool parsedOk = true;
+            //Cookie ck = new Cookie();
+            //string[] expressions = cookieStr.Split(";".ToCharArray(),StringSplitOptions.RemoveEmptyEntries);
+            //refer: http://msdn.microsoft.com/en-us/library/b873y76a.aspx
+            string[] expressions = cookieStr.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            //get cookie name and value
+            pairItem pair = new pairItem();
+            if (parseCookieNameValue(expressions[0], out pair))
+            {
+                ck.Name = pair.key;
+                ck.Value = pair.value;
+
+                string[] fieldExpressions = getSubStrArr(expressions, 1, expressions.Length - 1);
+                foreach (string eachExpression in fieldExpressions)
+                {
+                    //parse key and value
+                    if (parseCookieField(eachExpression, out pair))
+                    {
+                        // add to cookie field if possible
+                        addFieldToCookie(ref ck, pair);
+                    }
+                    else
+                    {
+                        // if any field fail, consider it is a abnormal cookie string, so quit with false
+                        parsedOk = false;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                parsedOk = false;
+            }
+
+            return parsedOk;
+        }//parseSingleCookie
+
+        //given a string array 'origStrArr', get a sub string array from 'startIdx', length is 'len'
+        public string[] getSubStrArr(string[] origStrArr, int startIdx, int len)
+        {
+            string[] subStrArr = new string[] { };
+            if ((origStrArr != null) && (origStrArr.Length > 0) && (len > 0))
+            {
+                List<string> strList = new List<string>();
+                int endPos = startIdx + len;
+                if (endPos > origStrArr.Length)
+                {
+                    endPos = origStrArr.Length;
+                }
+
+                for (int i = startIdx; i < endPos; i++)
+                {
+                    //refer: http://zhidao.baidu.com/question/296384408.html
+                    strList.Add(origStrArr[i]);
+                }
+
+                subStrArr = new string[len];
+                strList.CopyTo(subStrArr);
+            }
+
+            return subStrArr;
+        }
+
+        // parse the cookie name and value
+        public bool parseCookieNameValue(string ckNameValueExpr, out pairItem pair)
+        {
+            bool parsedOK = false;
+            if (ckNameValueExpr == "")
+            {
+                pair.key = "";
+                pair.value = "";
+                parsedOK = false;
+            }
+            else
+            {
+                ckNameValueExpr = ckNameValueExpr.Trim();
+
+                int equalPos = ckNameValueExpr.IndexOf('=');
+                if (equalPos > 0) // is valid expression
+                {
+                    pair.key = ckNameValueExpr.Substring(0, equalPos);
+                    pair.key = pair.key.Trim();
+                    if (isValidCookieName(pair.key))
+                    {
+                        // only process while is valid cookie field
+                        pair.value = ckNameValueExpr.Substring(equalPos + 1);
+                        pair.value = pair.value.Trim();
+                        parsedOK = true;
+                    }
+                    else
+                    {
+                        pair.key = "";
+                        pair.value = "";
+                        parsedOK = false;
+                    }
+                }
+                else
+                {
+                    pair.key = "";
+                    pair.value = "";
+                    parsedOK = false;
+                }
+            }
+            return parsedOK;
+        }
+
+        //check whether the cookie name is valid or not
+        public bool isValidCookieName(string ckName)
+        {
+            bool isValid = true;
+            if (ckName == null)
+            {
+                isValid = false;
+            }
+            else
+            {
+                string invalidP = @"\W+";
+                Regex rx = new Regex(invalidP);
+                Match foundInvalid = rx.Match(ckName);
+                if (foundInvalid.Success)
+                {
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
         #region Public
 
         /// <summary>
@@ -423,7 +772,7 @@ namespace Crawler.Core.Downloader
         /// <param name="certificate">证书</param>
         /// <param name="chain">X509Chain</param>
         /// <param name="errors">SslPolicyErrors</param>
-        /// <returns>bool</returns>
+        /// <returns>Bool</returns>
         private bool CheckValidationResult(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors) { return true; }
 
         /// <summary>

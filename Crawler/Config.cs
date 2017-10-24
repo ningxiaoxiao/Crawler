@@ -1,37 +1,46 @@
 ﻿using System;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
 namespace Crawler.Core
 {
     /// <summary>
-    /// 
+    /// 配置类
     /// </summary>
     public class Config
     {
-        public const string UserAgentAndroid = "";
-        public const string UserAgentIos = "";
-        public const string UserAgentComputer = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36";
-        public const string UserAgentMobile = "";
 
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
         public string Name { get; set; } = "crawler";
-        private string[] _domains;
+
         /// <summary>
         /// 可以发起请求的合法域,默认是scanurls的host
         /// </summary>
-        public string[] Domains
-        {
-            get { return _domains ?? new[] { new Uri(ScanUrls).Host }; }
-            set { _domains = value; }
-        }
+        public string[] Domains { get; set; } = { };
 
+
+        private string _scanUrls;
         /// <summary>
         /// 起始页
         /// </summary>
-        public string ScanUrls { get; set; }
+        public string ScanUrls
+        {
+            get
+            {
+                return _scanUrls;
+
+            }
+            set
+            {
+                _scanUrls = value;
+                if (Domains.Length == 0)
+                    Domains = new[] { new Uri(ScanUrls).Host };
+            }
+        }
         /// <summary>
         /// 识别内容页正则
         /// </summary>
@@ -44,13 +53,12 @@ namespace Crawler.Core
         /// 抽取项
         /// </summary>
         public Field[] Fields { get; set; }
-        /// <summary>
-        /// 间隔 秒 默认30分钟
-        /// </summary>
-        public int Interval { get; set; } = 1800;
-        //todo 设置爬取的类型 定时 定期 重复 一次爬取
+        [JsonConverter(typeof(StringEnumConverter))]
+        public RepeatWhenEver RepeatWhen { get; set; } = RepeatWhenEver.hour;
+        [JsonConverter(typeof(ChinaDateTimeConverter))]
+        public DateTime RepeatAt { get; set; } = DateTime.Now + new TimeSpan(50000000);
         public int Timeout { get; set; } = 1000;
-        public string UserAgent { get; set; } = UserAgentComputer;
+        public string UserAgent { get; set; } = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
         /// <summary>
         /// 单个HTTP请求失败时, 可自动重试. 通过tryTimes设置单个HTTP请求的最多重复请求次数
         /// 默认值是0, 0和1都表示单个HTTP请求最多可请求一次
@@ -70,6 +78,19 @@ namespace Crawler.Core
         /// 启动页是0
         /// </summary>
         public int MaxDeth { get; set; } = 2;
+
+        public override string ToString()
+        {
+            var r = "\r\n*******************************配置***********************************\r\n";
+            r += "名字:" + Name + "\r\n";
+            r += "启动页:" + ScanUrls + "\r\n";
+            r += "运行方式:" + RepeatWhen + "\r\n";
+            r += "运行时间:" + RepeatAt + "\r\n";
+            r += "线程数:" + ThreadNum + "\r\n";
+            r += "抽取项:" + ScanUrls + "\r\n";
+            r += "**********************************************************************";
+            return r;
+        }
     }
 
     public class Field
@@ -91,6 +112,7 @@ namespace Crawler.Core
         /// <summary>
         /// 设置抽取规则的类型  默认值是SelectorType.XPath
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public SelectorType Selectortype { get; set; } = SelectorType.XPath;
         /// <summary>
         /// 定义抽取规则
@@ -106,8 +128,9 @@ namespace Crawler.Core
         /// 设置抽取项中每条抽取结果的数据类型
         /// 默认值是string类型
         /// </summary>
-        public Type Type { get; set; } = typeof(string);
-
+        [JsonConverter(typeof(StringEnumConverter))]
+        public FieldType Type { get; set; } = FieldType.String;
+        [JsonIgnore]
         public string SqlType => _json[Type.ToString()].Value<string>().ToUpper();
 
         /// <summary>
@@ -120,6 +143,7 @@ namespace Crawler.Core
         /// 不仅可以使抽取项从当前内容页的网页内容中抽取数据, 
         /// 还可以从”异步请求返回的数据”或”内容页附加数据”中抽取数据
         /// </summary>
+        [JsonConverter(typeof(StringEnumConverter))]
         public SourceType SourceType { get; set; } = SourceType.Page;
         /// <summary>
         /// 设置抽取项的子抽取项
@@ -138,6 +162,40 @@ namespace Crawler.Core
         public bool Repeated { get; set; } = false;
 
 
+    }
+
+    public class ChinaDateTimeConverter : DateTimeConverterBase
+    {
+        private static IsoDateTimeConverter dtConverter = new IsoDateTimeConverter { DateTimeFormat = "yyyy-MM-dd HH:mm:ss" };
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            return dtConverter.ReadJson(reader, objectType, existingValue, serializer);
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            dtConverter.WriteJson(writer, value, serializer);
+        }
+    }
+
+    public enum FieldType
+    {
+        Int,
+        Float,
+        Time,
+        String,
+        Bool,
+
+    }
+    public enum RepeatWhenEver
+    {
+        once,
+        min,
+        hour,
+        day,
+        week,
+        month
     }
 
     public enum SelectorType

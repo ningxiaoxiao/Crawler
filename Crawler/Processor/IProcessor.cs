@@ -55,6 +55,7 @@ namespace Crawler.Core.Processor
                 OnProcessScanPage?.Invoke(page);
                 page.SkipExtractField = true;
             }
+
             else if (Config.HelperUrlRegexes.IsMatch(page.Request.Url))
             {
                 Logger.Info($"列表页");
@@ -104,7 +105,7 @@ namespace Crawler.Core.Processor
             Logger.Info($"处理结束");
         }
 
-        public void FindUrl(object pageobj)
+        protected void FindUrl(object pageobj)
         {
 
             var page = (Page)pageobj;
@@ -125,7 +126,7 @@ namespace Crawler.Core.Processor
             Logger.Info($"查找新的URL结束");
         }
 
-        private void Extract(Page page)
+        protected void Extract(Page page)
         {
 
             foreach (var field in Config.Fields)
@@ -150,19 +151,19 @@ namespace Crawler.Core.Processor
                     switch (field.Selectortype)
                     {
                         case SelectorType.JsonPath:
-                            result = DoJson(page, source, field);
+                            result = DoJson(source, field);
                             break;
                         case SelectorType.XPath:
-                            result = DoHtml(page, source, field);
+                            result = DoHtml( source, field);
                             break;
                         case SelectorType.Regex:
-                            result = DoRegex(page, source, field);
+                            result = DoRegex(source, field);
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
 
-                    page.Results.Add(result);
+                    page.Results.Add(result.Key, result);
                     AfterExtractField?.Invoke(page, result);
 
                 }
@@ -175,7 +176,7 @@ namespace Crawler.Core.Processor
             }
         }
 
-        protected Result DoRegex(Page page, string source, Field field)
+        protected Result DoRegex(string source, Field field)
         {
             var r = new Regex(field.Selector);
             var m = r.Match(source);
@@ -183,7 +184,7 @@ namespace Crawler.Core.Processor
             return new Result(field.Name, m.Groups[1].Value);
         }
 
-        protected Result DoHtml(Page page, string source, Field field)
+        protected Result DoHtml( string source, Field field)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(source);
@@ -192,7 +193,7 @@ namespace Crawler.Core.Processor
             return new Result(field.Name, n.InnerText);
         }
 
-        protected Result DoJson(Page page, string source, Field field)
+        protected Result DoJson( string source, Field field)
         {
             JObject j;
             try
@@ -228,6 +229,9 @@ namespace Crawler.Core.Processor
             Value = v;
         }
     }
+
+    
+
 
 
 }
