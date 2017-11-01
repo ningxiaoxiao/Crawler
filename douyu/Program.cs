@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Crawler.Core;
 
-namespace Crawler.Core.Sample
+namespace douyu
 {
     class Program
     {
-        private static Crawler douyu;
+        private static Crawler.Core.Crawler douyu;
         static void Main(string[] args)
         {
             douyuSample();
@@ -13,7 +14,7 @@ namespace Crawler.Core.Sample
             Console.ReadKey();
         }
 
-        
+
         static void douyuSample()
         {
             //https://www.douyu.com/directory/all
@@ -70,10 +71,10 @@ namespace Crawler.Core.Sample
                     },
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now+new TimeSpan(0,0,0,5),
+                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
             };
             #endregion
-            douyu = new Crawler();
+            douyu = new Crawler.Core.Crawler();
 
             douyu.Setup(c);
             douyu.Processor.OnProcessHelperPage = p =>

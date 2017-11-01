@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -25,12 +26,15 @@ namespace Crawler.Core.Pipeline
         public void Handle(Page p)
         {
             //过虑一次
-            if (p.Results.Count == 0)
-                return;
-            OnHandel(p);
+            if (p.Results.Count == 0) return;
 
+            foreach (var ress in p.Results)
+            {
+                if (ress.Count == 0) continue;
+                OnHandel(ress);
+            }
         }
-        public virtual void OnHandel(Page p) { }
+        public virtual void OnHandel(ExtractResults results) { }
     }
 
     public class MySqlPipline : BasePipeline
@@ -39,7 +43,7 @@ namespace Crawler.Core.Pipeline
 
 
 
-        public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='123456';charset='utf8';pooling=true")
+        public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='123456';charset='utf8';")
         {
             _sqlConString = sqlcon;
 
@@ -79,7 +83,7 @@ namespace Crawler.Core.Pipeline
             while (tabels.Read())
             {
                 var tablename = tabels.GetString(0);
-                if (tablename != DataTableName) continue;
+                if (tablename.ToLower() != DataTableName.ToLower()) continue;
                 haveTable = true;
                 break;
             }
@@ -107,9 +111,10 @@ namespace Crawler.Core.Pipeline
             Logger.Info("表[" + DataTableName + "]新建成功");
 
         }
-
-        public override void OnHandel(Page p)
+        object locker = new object();
+        public override void OnHandel(ExtractResults results)
         {
+
             var con = new MySqlConnection(_sqlConString);
             con.Open();
             con.ChangeDatabase(DatabaseName);
@@ -118,9 +123,9 @@ namespace Crawler.Core.Pipeline
             //建立文本
 
             var keys = "timestamp";
-            var values = "\"" + p.Timestamp + "\"";
+            var values = "\"" + results.Timestamp + "\"";
 
-            foreach (var result in p.Results)
+            foreach (var result in results)
             {
                 keys += $",{result.Key}";
                 values += $",\"{result.Value}\"";
@@ -135,6 +140,10 @@ namespace Crawler.Core.Pipeline
             {
                 Logger.Error("sql保存错误:" + e.Message);
             }
+            con.Close();
+
+
+
 
         }
     }
@@ -152,12 +161,12 @@ namespace Crawler.Core.Pipeline
             //建立collection
             _collection = database.GetCollection<BsonDocument>("results");
         }
-        public override void OnHandel(Page p)
+        public override void OnHandel(ExtractResults results)
         {
 
             Logger.Info("开始保存");
             var doc = new BsonDocument();
-            foreach (var r in p.Results)
+            foreach (var r in results)
             {
                 if (!r.Skip)
                     doc.Add(r.Key, r.Value);

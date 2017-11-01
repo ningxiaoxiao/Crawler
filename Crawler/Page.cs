@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Crawler.Core.Downloader;
 using Crawler.Core.Processor;
+using HtmlAgilityPack;
+using Newtonsoft.Json.Linq;
 
 namespace Crawler.Core
 {
@@ -10,10 +12,7 @@ namespace Crawler.Core
     /// </summary>
     public class Page : HttpResult
     {
-        /// <summary>
-        /// 下载完成时的时间
-        /// </summary>
-        public string Timestamp { get; set; }
+
         public Page() { }
 
         public Page(HttpResult r)
@@ -38,7 +37,7 @@ namespace Crawler.Core
         public string ContextData { get; set; }
 
 
-        public ExtractResults Results { get; } = new ExtractResults();
+        public List<ExtractResults> Results { get; } = new List<ExtractResults>();
 
         /// <summary>
         /// 跳过抽取
@@ -56,13 +55,36 @@ namespace Crawler.Core
         /// 结果不会被保存到数据库中
         /// </summary>
         public bool SkipSave { get; set; } = false;
+
+        public string GetXPath(string pathtext)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(Html);
+            var n = doc.DocumentNode.SelectSingleNode(pathtext);
+            return n?.InnerText;
+
+        }
+
+        public string GetJson(string jpath)
+        {
+            var j = JObject.Parse(Html);
+            var v = j.SelectToken(jpath);
+            return v?.ToString();
+        }
     }
     public class ExtractResults : Dictionary<String, Result>, IEnumerable<Result>
     {
+
+        public ExtractResults()
+            :base()
+        {
+            Timestamp= DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
         public void Add(Result r)
         {
+            if(r==null)return;
             this.Add(r.Key, r);
-
         }
 
         public new IEnumerator<Result> GetEnumerator()
@@ -70,5 +92,6 @@ namespace Crawler.Core
             return Values.GetEnumerator();
         }
 
+        public string Timestamp { get; private set; }
     }
 }

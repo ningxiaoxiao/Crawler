@@ -183,6 +183,11 @@ namespace Crawler.Core.Scheduler
 
     }
 
+    public enum PageType
+    {
+        ScanUrl,
+
+    }
     public class DefaultSchduler : BaseSchduler
     {
 

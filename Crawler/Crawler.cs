@@ -11,7 +11,7 @@ namespace Crawler.Core
 {
     public sealed class Crawler
     {
-        public static Logger Logger = LogManager.GetLogger("Crawler");
+        public static Logger Logger { get; private set; }
         private static object _lock = new object();
         private int _runTimes = 0;
         private DateTime _nexTime;
@@ -43,6 +43,7 @@ namespace Crawler.Core
 
             if (c.ScanUrls == null) throw new Exception("没有启动页");
             Config = c;
+            Logger = LogManager.GetLogger(Config.Name);
             Logger.Info(c.ToString());
             _nexTime = Config.RepeatAt;
 
@@ -51,24 +52,25 @@ namespace Crawler.Core
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
             Logger.Info("配置完成,等待运行时间:" + Config.RepeatAt);
-
+            Schduler.AddScanUrl(Config.ScanUrls);
         }
 
         public void Start()
         {
+           
+            var r = Schduler.GetNext();
+            Processor.OnProcessScanPage(Downloader.DownloaderOnly(r));
             _timer = new Timer(OnTimer, null, 1000, 1000);
         }
 
         private void OnTimer(object o)
         {
-            if (DateTime.Now >= _nexTime)
-            {
-                Logger.Info($"到了运行时间{_nexTime},启动主线程中...");
-                new Thread(Run).Start();
-                _runTimes++;
+            if (DateTime.Now < _nexTime) return;
+            Logger.Info($"到了运行时间{_nexTime},启动主线程中...");
+            new Thread(Run).Start();
+            _runTimes++;
 
-                CallNextRun();
-            }
+            CallNextRun();
         }
 
         private void Run()
@@ -77,7 +79,7 @@ namespace Crawler.Core
             var sw = new Stopwatch();
             sw.Start();
             BeforeCrawl?.Invoke();
-            Schduler.AddScanUrl(Config.ScanUrls);
+
 
             Logger.Info($"启动{Config.ThreadNum}个线程");
             for (var i = 0; i < Config.ThreadNum; i++)

@@ -46,17 +46,14 @@ namespace Crawler.Core.Processor
         public VoidPageDelegate OnProcessContentPage { get; set; }
         public VoidPageResultDelegate AfterExtractField { get; set; }
         public VoidPageDelegate OnComplete { get; set; }
-
+        public VoidPageDelegate OnCustomExtract { get; set; }
+        
         public void Handle(Page page)
         {
             Logger.Info($"开始处理 {page.Request.Url}");
-            if (page.Request.Url == Config.ScanUrls)
-            {
-                OnProcessScanPage?.Invoke(page);
-                page.SkipExtractField = true;
-            }
 
-            else if (Config.HelperUrlRegexes.IsMatch(page.Request.Url))
+
+             if (Config.HelperUrlRegexes.IsMatch(page.Request.Url))
             {
                 Logger.Info($"列表页");
                 //识别列表页
@@ -84,7 +81,17 @@ namespace Crawler.Core.Processor
             else
             {
                 Logger.Info($"开始抽取");
-                Extract(page);
+                if (OnCustomExtract == null)
+                {
+
+                    Extract(page);
+                }
+                else
+                {
+                    Logger.Info($"使用自定抽取");
+                    OnCustomExtract.Invoke(page);
+                }
+
                 Logger.Info($"抽取完成");
                 OnComplete?.Invoke(page);
                 Logger.Info($"{page.Request.Url} 抽取到{page.Results.Count}结果");
@@ -147,6 +154,7 @@ namespace Crawler.Core.Processor
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+                    
                     Result result;
                     switch (field.Selectortype)
                     {
@@ -154,7 +162,7 @@ namespace Crawler.Core.Processor
                             result = DoJson(source, field);
                             break;
                         case SelectorType.XPath:
-                            result = DoHtml( source, field);
+                            result = DoHtml(source, field);
                             break;
                         case SelectorType.Regex:
                             result = DoRegex(source, field);
@@ -162,8 +170,9 @@ namespace Crawler.Core.Processor
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-
-                    page.Results.Add(result.Key, result);
+                    var results = new ExtractResults {result};
+                   
+                    page.Results.Add(results);
                     AfterExtractField?.Invoke(page, result);
 
                 }
@@ -176,7 +185,7 @@ namespace Crawler.Core.Processor
             }
         }
 
-        protected Result DoRegex(string source, Field field)
+        public static Result DoRegex(string source, Field field)
         {
             var r = new Regex(field.Selector);
             var m = r.Match(source);
@@ -184,7 +193,7 @@ namespace Crawler.Core.Processor
             return new Result(field.Name, m.Groups[1].Value);
         }
 
-        protected Result DoHtml( string source, Field field)
+        public static Result DoHtml(string source, Field field)
         {
             var doc = new HtmlDocument();
             doc.LoadHtml(source);
@@ -193,7 +202,7 @@ namespace Crawler.Core.Processor
             return new Result(field.Name, n.InnerText);
         }
 
-        protected Result DoJson( string source, Field field)
+        public static Result DoJson(string source, Field field)
         {
             JObject j;
             try
@@ -204,7 +213,11 @@ namespace Crawler.Core.Processor
             {
                 throw new Exception("解析出现问题:" + source);
             }
-            return new Result(field.Name, j.SelectToken(field.Selector).Value<string>());
+
+            var v = j.SelectToken(field.Selector);
+            if (v == null) return null;
+
+            return new Result(field.Name, v.Value<string>());
         }
     }
 
@@ -230,7 +243,7 @@ namespace Crawler.Core.Processor
         }
     }
 
-    
+
 
 
 

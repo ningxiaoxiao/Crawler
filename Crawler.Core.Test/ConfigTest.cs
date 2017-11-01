@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
@@ -67,11 +68,19 @@ namespace Crawler.Core.Test
 
             var j = JsonConvert.SerializeObject(c);
             var output = j.ToString();
-            var deC = JsonConvert.DeserializeObject<Config>(output,new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore});
+            var deC = Config.GetConfigFormJsonString(output);
+            //var deC = JsonConvert.DeserializeObject<Config>(output,new JsonSerializerSettings() {NullValueHandling = NullValueHandling.Ignore});
 
             Assert.AreEqual(c.ScanUrls,deC.ScanUrls);
 
             Console.WriteLine(output);
+        }
+        [TestMethod]
+        public void DeserializeFormFile()
+        {
+            var c= Config.GetConfigFormPath("c:\\test.json");
+
+            Assert.AreEqual("https://www.douyu.com/directory/all",c.ScanUrls);
         }
     }
 }

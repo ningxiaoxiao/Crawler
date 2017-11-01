@@ -12,6 +12,23 @@ namespace Crawler.Core
     /// </summary>
     public class Config
     {
+        public Config() { }
+
+        public Config(string jsonText)
+        {
+            //从json文本中读取配置
+
+        }
+
+        public static Config GetConfigFormPath(string path)
+        {
+            return GetConfigFormJsonString(File.ReadAllText(path));
+        }
+        public static Config GetConfigFormJsonString(string jsonText)
+        {
+            return JsonConvert.DeserializeObject<Config>(jsonText);
+        }
+
 
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
@@ -95,10 +112,10 @@ namespace Crawler.Core
 
     public class Field
     {
-        private JObject _json;
+        private JObject _mysqlKeyWordjson;
         public Field()
         {
-            _json = JObject.Parse(File.ReadAllText("tomysql.json"));
+            _mysqlKeyWordjson = JObject.Parse(File.ReadAllText("tomysql.json"));
         }
 
         /// <summary>
@@ -131,7 +148,7 @@ namespace Crawler.Core
         [JsonConverter(typeof(StringEnumConverter))]
         public FieldType Type { get; set; } = FieldType.String;
         [JsonIgnore]
-        public string SqlType => _json[Type.ToString()].Value<string>().ToUpper();
+        public string SqlType => _mysqlKeyWordjson[Type.ToString()].Value<string>().ToUpper();
 
         /// <summary>
         /// 设置抽取项是否是临时的(临时的抽取项不会保存到爬取结果中)

@@ -24,12 +24,23 @@ namespace Crawler.Core.Downloader
         public Logger Logger => Crawler.Logger;
         private static readonly object _lock = new object();
 
+        public Page DownloaderOnly(Request r)
+        {
+            if (r == null) return null;
+            var http = new HttpHelper();
+            var p=
+            (Page) http.GetHtml(r);
+            p.Request = r;
+
+            return p;
+        }
         public void Download(Request r)
         {
             if (r == null) return;
             r.LeftTryTimes--;
 
             var beforR = BeforeDownloadPage?.Invoke(r) ?? r;
+
             var http = new HttpHelper();
             var p = (Page)http.GetHtml(beforR);
             p.Request = beforR;
@@ -45,7 +56,7 @@ namespace Crawler.Core.Downloader
             }
             SuccessCount++;
             Logger.Info($"下载 {p.Request.Url} 成功");
-            p.Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)
                 beforR.Schduler.AddCookie(p.CookieCollection);
