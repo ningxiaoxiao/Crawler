@@ -392,8 +392,6 @@ namespace Crawler.Core.Downloader
             {
                 //准备参数
                 SetRequest(item);
-
-
             }
             catch (Exception ex)
             {

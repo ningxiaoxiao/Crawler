@@ -10,9 +10,13 @@ namespace Crawler.Core.Pipeline.Tests
         public void HandleTest()
         {
 
-            var p=new MangoPipline();
-            var page=new Page();
-            page.Results.Add(new Result("name","ningxiaoxiao"));
+            var p = new MangoPipline();
+            var page = new Page();
+            page.Results.Add(
+                new ExtractResults
+                {
+                    new Result("name", "ningxiaoxiao")
+                });
             p.Handle(page);
         }
     }

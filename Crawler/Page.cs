@@ -12,9 +12,7 @@ namespace Crawler.Core
     /// </summary>
     public class Page : HttpResult
     {
-
         public Page() { }
-
         public Page(HttpResult r)
         {
             Html = r.Html;
@@ -42,48 +40,69 @@ namespace Crawler.Core
         /// <summary>
         /// 跳过抽取
         /// </summary>
-        public bool SkipExtractField { get; set; } = false;
+        public bool SkipExtractField { get; private set; }
 
+        public void SkipExtract()
+        {
+            SkipExtractField = true;
+        }
         /// <summary>
         /// 跳过从这个网页正文发现新的URL
         /// </summary>
-        public bool SkipFindUrl { get; set; } = false;
+        public bool SkipFindUrl { get; private set; }
 
+        public void SkipFind()
+        {
+            SkipFindUrl = true;
+        }
         /// <summary>
         /// 只能在afterExtractField回调函数中使用, 
         /// 用来过滤抽取项中不需要的抽取结果, 
         /// 结果不会被保存到数据库中
         /// </summary>
-        public bool SkipSave { get; set; } = false;
+        public bool SkipSave { get; private set; }
 
+        public void SkipSaveData()
+        {
+            SkipSave = true;
+        }
+
+        private HtmlDocument _doc;
         public string GetXPath(string pathtext)
         {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(Html);
-            var n = doc.DocumentNode.SelectSingleNode(pathtext);
+            if (_doc == null)
+            {
+                _doc = new HtmlDocument();
+                _doc.LoadHtml(Html);
+            }
+               
+            var n = _doc.DocumentNode.SelectSingleNode(pathtext);
             return n?.InnerText;
 
         }
 
+
+        private JObject _json;
+
         public string GetJson(string jpath)
         {
-            var j = JObject.Parse(Html);
-            var v = j.SelectToken(jpath);
+            if (_json == null) _json = JObject.Parse(Html);
+
+            var v = _json.SelectToken(jpath);
             return v?.ToString();
         }
     }
-    public class ExtractResults : Dictionary<String, Result>, IEnumerable<Result>
+    public class ExtractResults : Dictionary<string, Result>, IEnumerable<Result>
     {
-
+        //todo 增加一个抓取计数 用来识别一次抓取 应该是一个int 会自增的属性,从crawler上得到
         public ExtractResults()
-            :base()
         {
-            Timestamp= DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
         }
 
         public void Add(Result r)
         {
-            if(r==null)return;
+            if (r == null) return;
             this.Add(r.Key, r);
         }
 
@@ -92,6 +111,6 @@ namespace Crawler.Core
             return Values.GetEnumerator();
         }
 
-        public string Timestamp { get; private set; }
+        public string Timestamp { get; }
     }
 }

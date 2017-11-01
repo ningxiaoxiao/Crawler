@@ -101,7 +101,11 @@ namespace Crawler.Core.Scheduler
 
         }
 
-        public void AddUrl(string url, int deth = 0, Options options = null)
+        public void AddUrl(string u, int deth)
+        {
+            AddUrl(u,PageType.ContextUrl,deth);
+        }
+        public void AddUrl(string url, PageType type=PageType.ContextUrl,int deth = 0, Options options = null)
         {
 
             if (!url.Contains("http"))
@@ -145,25 +149,17 @@ namespace Crawler.Core.Scheduler
                     options.Headers
                 },
                 CookieCollection = _cookies.GetCookies(new Uri(url)),
+                
             };
-
+            r.SetType(type);
             AddRequest(r);
-
-
-
+           
         }
 
-        public void AddUrls(IEnumerable<string> urls, int deth = 0, Options os = null)
-        {
-            foreach (var u in urls)
-            {
-                AddUrl(u, deth, os);
-            }
-        }
-
+ 
         public void AddScanUrl(string url, Options options = null)
         {
-            AddUrl(url, 0, options);
+            AddUrl(url, PageType.ScanUrl,0, options);
         }
 
         public string RequestUrl(string url, Options options = null)
@@ -186,6 +182,8 @@ namespace Crawler.Core.Scheduler
     public enum PageType
     {
         ScanUrl,
+        HelperUrl,
+        ContextUrl,
 
     }
     public class DefaultSchduler : BaseSchduler

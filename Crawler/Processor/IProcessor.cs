@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Crawler.Core.Scheduler;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using NLog;
@@ -53,24 +54,29 @@ namespace Crawler.Core.Processor
             Logger.Info($"开始处理 {page.Request.Url}");
 
 
-             if (Config.HelperUrlRegexes.IsMatch(page.Request.Url))
+            switch (page.Request.Type)
             {
-                Logger.Info($"列表页");
-                //识别列表页
-                OnProcessHelperPage?.Invoke(page);
-                page.SkipExtractField = true;
-            }
-            else if (Config.ContentUrlRegexes.IsMatch(page.Request.Url))
-            {
-                Logger.Info($"内容页");
-                //识别内容页
-                OnProcessContentPage?.Invoke(page);
-            }
-            else
-            {
-                Logger.Info($"未知页");
-                //什么都不是的网页,跳过抽取,
-                page.SkipExtractField = true;
+                case PageType.ScanUrl:
+                    OnProcessScanPage?.Invoke(page);
+                    break;
+                case PageType.HelperUrl:
+                    Logger.Info($"列表页");
+                    //识别列表页
+                    OnProcessHelperPage?.Invoke(page);
+                    break;
+                case PageType.ContextUrl:
+                    Logger.Info($"内容页");
+                    //识别内容页
+                    OnProcessContentPage?.Invoke(page);
+                    break;
+                default:
+                    Logger.Info($"未知页");
+                    //什么都不是的网页,跳过抽取,
+                    page.SkipExtract();
+                    page.SkipSaveData();
+                    page.SkipFind();
+
+                    break;
             }
 
             if (page.SkipExtractField)
@@ -127,7 +133,7 @@ namespace Crawler.Core.Processor
                 if (Config.HelperUrlRegexes.IsMatch(url) || Config.ContentUrlRegexes.IsMatch(url))
                 {
                     Logger.Info($"在[{page.Request.Url}]发现新网页[{url}]");
-                    page.Request.Schduler.AddUrl(url, page.Request.Deth + 1);
+                    page.Request.Schduler.AddUrl(url, PageType.ContextUrl,page.Request.Deth + 1);
                 }
             }
             Logger.Info($"查找新的URL结束");
@@ -211,7 +217,7 @@ namespace Crawler.Core.Processor
             }
             catch (Exception)
             {
-                throw new Exception("解析出现问题:" + source);
+                throw new Exception("解析出现问题:" +field);
             }
 
             var v = j.SelectToken(field.Selector);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Crawler.Core.Scheduler;
 
 namespace Crawler.Core.Sample
 {
@@ -74,8 +75,6 @@ namespace Crawler.Core.Sample
             };
             #endregion
             douyu = new Crawler();
-
-            douyu.Setup(c);
             douyu.Processor.OnProcessHelperPage = p =>
             {
 
@@ -86,7 +85,8 @@ namespace Crawler.Core.Sample
                     douyu.Schduler.AddUrl("http://open.douyucdn.cn/api/RoomApi/room/" + m.Groups[1].Value, p.Request.Deth + 1);
                 }
 
-                p.SkipFindUrl = true;
+                p.SkipFind();
+                p.SkipExtract();
 
             };
             douyu.Processor.OnProcessScanPage = p =>
@@ -100,11 +100,13 @@ namespace Crawler.Core.Sample
 #endif
                 for (int i = 0; i < count; i++)
                 {
-                    douyu.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1", p.Request.Deth + 1);
+                    douyu.Schduler.AddUrl($"https://www.douyu.com/directory/all?page={ i + 1}&isAjax=1",PageType.HelperUrl, p.Request.Deth + 1);
                 }
-                p.SkipFindUrl = true;
+                p.SkipFind();
+                p.SkipExtract();
 
             };
+            douyu.Setup(c);
             douyu.Start();
 
         }

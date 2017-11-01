@@ -117,7 +117,7 @@ namespace panda
                     crawler.Schduler.AddUrl($"https://www.panda.tv/live_lists?status=2&order=person_num&token=&pageno={i}&pagenum=120");
                 }
 
-                p.SkipFindUrl = true;
+                p.SkipFind();
 
 
             };

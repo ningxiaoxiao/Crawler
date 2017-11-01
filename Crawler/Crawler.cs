@@ -17,10 +17,10 @@ namespace Crawler.Core
         private DateTime _nexTime;
         private Timer _timer;
 
-        public BaseDownloader Downloader { get; private set; }
+        public BaseDownloader Downloader { get; }
         public IPipeline Pipeline { get; private set; }
-        public DefaultProcessor Processor { get; private set; }
-        public DefaultSchduler Schduler { get; private set; }
+        public DefaultProcessor Processor { get; }
+        public DefaultSchduler Schduler { get; }
 
 
         public static Config Config { get; private set; }
@@ -57,9 +57,6 @@ namespace Crawler.Core
 
         public void Start()
         {
-           
-            var r = Schduler.GetNext();
-            Processor.OnProcessScanPage(Downloader.DownloaderOnly(r));
             _timer = new Timer(OnTimer, null, 1000, 1000);
         }
 

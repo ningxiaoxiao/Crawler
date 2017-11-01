@@ -28,8 +28,7 @@ namespace Crawler.Core.Downloader
         {
             if (r == null) return null;
             var http = new HttpHelper();
-            var p=
-            (Page) http.GetHtml(r);
+            var p =(Page)http.GetHtml(r);
             p.Request = r;
 
             return p;
@@ -47,16 +46,27 @@ namespace Crawler.Core.Downloader
 
             if (p.Response == null || p.Response.StatusCode != HttpStatusCode.OK)
             {
-                //下载失败
-                FailCount++;
+
                 var failres = p.Response == null ? p.Html : p.Response.StatusDescription;
-                Logger.Warn($"下载 {p.Request.Url} 失败,{failres}");
-                if (r.LeftTryTimes > 0) p.Request.Schduler.AddRequest(beforR);
+
+                if (r.LeftTryTimes > 0)
+                {
+                    Logger.Warn($"下载 {p.Request.Url} 失败,原因:{failres},剩余重试次数:{r.LeftTryTimes}");
+                    p.Request.Schduler.AddRequest(r);
+                }
+                else
+                {
+                    //下载失败
+                    FailCount++;
+                    Logger.Warn($"下载 {p.Request.Url} 失败,重试次数用完,当前配置重试次数:{Crawler.Config.TryTimes}");
+                }
+
+
                 return;
             }
             SuccessCount++;
             Logger.Info($"下载 {p.Request.Url} 成功");
-            
+
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)
                 beforR.Schduler.AddCookie(p.CookieCollection);
@@ -64,9 +74,9 @@ namespace Crawler.Core.Downloader
             AfterDownloadPage?.Invoke(p);
         }
 
-        private static string GetTimestamp(bool l=false)
+        private static string GetTimestamp(bool l = false)
         {
-            return ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / (l?10000: 10000000)).ToString();
+            return ((DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / (l ? 10000 : 10000000)).ToString();
         }
         public bool IsAntiSpider(string url, string content, Page page)
         {

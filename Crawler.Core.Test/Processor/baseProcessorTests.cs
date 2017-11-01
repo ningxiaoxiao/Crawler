@@ -22,8 +22,8 @@ namespace Crawler.Core.Processor.Tests
                 Selector = "id=\"([a-z]*)\""
             });
             var p = new Page();
-            p.Results.Add(r);
-            Assert.AreEqual("test", p.Results["id"].Value);
+            p.Results.Add(new ExtractResults{r});
+            Assert.AreEqual("test", p.Results[0]["id"].Value);
         }
         [TestMethod()]
         public void DoHtmlTest()
@@ -40,8 +40,8 @@ namespace Crawler.Core.Processor.Tests
                 Name = "name",
                 Selector = "//*[@id=\"J_roomHeader\"]/div[1]/div[2]/div[2]/div/h3"
             });
-            p.Results.Add(res);
-            Assert.AreEqual("董导丶董小飒",p.Results["name"].Value);
+            p.Results.Add(new ExtractResults{res});
+            Assert.AreEqual("董导丶董小飒", p.Results[0]["name"].Value);
 
         }
         [TestMethod()]
@@ -61,10 +61,10 @@ namespace Crawler.Core.Processor.Tests
                 Selectortype = SelectorType.JsonPath,
                 Selector = "$.data.owner_name"
             });
-            p.Results.Add(res);
+            p.Results.Add(new ExtractResults { res });
 
             //嗨氏
-            Assert.AreEqual("嗨氏",p.Results["name"].Value );
+            Assert.AreEqual("嗨氏", p.Results[0]["name"].Value);
 
         }
         [TestMethod]

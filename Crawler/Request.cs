@@ -9,16 +9,23 @@ namespace Crawler.Core
     /// </summary>
     public class Request : HttpItem
     {
+        public PageType Type { get; private set; }
+        //todo 去掉从这里使用调度器
         public Request(ISchduler schduler)
         {
             Schduler = schduler;
+        }
+
+        public void SetType(PageType t)
+        {
+            Type = t;
         }
         /// <summary>
         /// 调度器
         /// </summary>
         public ISchduler Schduler { get; }
 
-        public int Deth { get; set; }= 0;
+        public int Deth { get; set; } = 0;
         /// <summary>
         /// 剩余尝试下载次数
         /// </summary>
@@ -57,4 +64,6 @@ namespace Crawler.Core
             return Url.GetHashCode();
         }
     }
+
+
 }

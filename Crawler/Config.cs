@@ -118,6 +118,11 @@ namespace Crawler.Core
             _mysqlKeyWordjson = JObject.Parse(File.ReadAllText("tomysql.json"));
         }
 
+        public override string ToString()
+        {
+            return $"name:{Name},Selector:{Selector}";
+        }
+
         /// <summary>
         /// 给抽取项起个名字
         /// </summary>
