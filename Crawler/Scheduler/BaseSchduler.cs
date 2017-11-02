@@ -23,6 +23,8 @@ namespace Crawler.Core.Scheduler
         public Logger Logger => Crawler.Logger;
 
         private readonly Queue<Request> _queue = new Queue<Request>();
+        private readonly Queue<Request> _Outqueue = new Queue<Request>();
+
 
         private static readonly object _lock = new object();
 
@@ -37,13 +39,20 @@ namespace Crawler.Core.Scheduler
         {
             lock (_lock)
             {
-                if (_queue.Count == 0) return null;
+                if (_queue.Count == 0)return null;
 
                 var r = _queue.Dequeue();
+
+                _Outqueue.Enqueue(r);
                 Logger.Info($"{r.Url} 出队 剩余:{_queue.Count}");
                 return r;
             }
 
+        }
+
+        public void Reset()
+        {
+            _Outqueue.Clear();
         }
 
         public string GetCookie(string name, string domain)
@@ -56,16 +65,20 @@ namespace Crawler.Core.Scheduler
         {
             lock (_lock)
             {
-                //去重
-                if (_queue.Contains(r))
+                //如果已经进行下载了 就不要去重 直接入队
+                if (r.LeftTryTimes == Config.TryTimes)
                 {
-                    Logger.Warn($"{r.Url} 入队失败,重复");
+                    //新加入的要去重
+                    if (_queue.Contains(r) || _Outqueue.Contains(r))
+                    {
+                        Logger.Warn($"{r.Url} 入队失败,重复");
+                        return;
+                    }
                 }
-                else
-                {
-                    _queue.Enqueue(r);
-                    Logger.Info($"{r.Url} 入队 深度:{r.Deth} 剩余:{_queue.Count}");
-                }
+
+                _queue.Enqueue(r);
+                Logger.Info($"{r.Url} 入队 深度:{r.Deth} 剩余:{_queue.Count}");
+
             }
 
         }
@@ -84,7 +97,7 @@ namespace Crawler.Core.Scheduler
                 {
                     _cookies.Add(c);
                 }
-                
+
             }
 
         }
@@ -103,9 +116,9 @@ namespace Crawler.Core.Scheduler
 
         public void AddUrl(string u, int deth)
         {
-            AddUrl(u,PageType.ContextUrl,deth);
+            AddUrl(u, PageType.ContextUrl, deth);
         }
-        public void AddUrl(string url, PageType type=PageType.ContextUrl,int deth = 0, Options options = null)
+        public void AddUrl(string url, PageType type = PageType.ContextUrl, int deth = 0, Options options = null)
         {
 
             if (!url.Contains("http"))
@@ -133,7 +146,7 @@ namespace Crawler.Core.Scheduler
                 options = new Options();//使用默认值
             }
 
-            
+
 
             var r = new Request(this)
             {
@@ -149,17 +162,17 @@ namespace Crawler.Core.Scheduler
                     options.Headers
                 },
                 CookieCollection = _cookies.GetCookies(new Uri(url)),
-                
+
             };
             r.SetType(type);
             AddRequest(r);
-           
+
         }
 
- 
+
         public void AddScanUrl(string url, Options options = null)
         {
-            AddUrl(url, PageType.ScanUrl,0, options);
+            AddUrl(url, PageType.ScanUrl, 0, options);
         }
 
         public string RequestUrl(string url, Options options = null)

@@ -43,8 +43,9 @@ namespace Crawler.Core.Scheduler
         /// <param name="url">待添加的网页url, String类型, 必填项, 无默认值</param>
         /// <param name="options">网页url的请求参数等设置, JS对象, 可不填, 无默认值. 成员包括: Method, Data, ContextData, Headers, Reserve, NoProxy, Charset, Events, DupValue, EnableJs, IgnoreCookies, UrlEncodeData</param>
         void AddUrl(string url, PageType type,int deth = 0, Options options = null);
+        void AddUrl(string url, int deth);
 
- 
+
         /// <summary>
         /// 一般在beforeCrawl回调函数中调用, 用来添加入口页url
         /// </summary>

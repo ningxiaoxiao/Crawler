@@ -20,6 +20,7 @@ namespace Crawler.Core
 
         }
 
+
         public static Config GetConfigFormPath(string path)
         {
             return GetConfigFormJsonString(File.ReadAllText(path));
@@ -28,8 +29,8 @@ namespace Crawler.Core
         {
             return JsonConvert.DeserializeObject<Config>(jsonText);
         }
-
-
+        //todo 是不是要放到别的地方?
+        public string MysqlConString{get;set;}="Data Source='localhost';User Id='root';Password='123456';charset='utf8';";
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
         public string Name { get; set; } = "crawler";

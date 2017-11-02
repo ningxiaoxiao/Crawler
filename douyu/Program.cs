@@ -51,13 +51,13 @@ namespace douyu
                         Name = "online",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.online",
-                        Type = FieldType.String,
+                        Type = FieldType.Int,
                     },new Field
                     {
                         Name = "fanscount",
                         Selectortype = SelectorType.JsonPath,
                         Selector = "$.data.fans_num",
-                        Type = FieldType.String,
+                        Type = FieldType.Int,
                     },new Field
                     {
                         Name = "cate",

@@ -94,10 +94,10 @@ namespace Crawler.Core
     }
     public class ExtractResults : Dictionary<string, Result>, IEnumerable<Result>
     {
-        //todo 增加一个抓取计数 用来识别一次抓取 应该是一个int 会自增的属性,从crawler上得到
         public ExtractResults()
         {
-            Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            Timestamp = Crawler.CurStartTime.ToString("yyyy-MM-dd HH:mm:ss");
+            
         }
 
         public void Add(Result r)

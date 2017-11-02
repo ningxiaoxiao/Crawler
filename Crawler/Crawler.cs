@@ -11,10 +11,23 @@ namespace Crawler.Core
 {
     public sealed class Crawler
     {
+        /// <summary>
+        /// 全局配置
+        /// </summary>
+        public static Config Config { get; private set; }
+
+        /// <summary>
+        /// 全局logger
+        /// </summary>
         public static Logger Logger { get; private set; }
+        /// <summary>
+        /// 本次抓取唯一标识
+        /// </summary>
+        public static DateTime CurStartTime { get; private set; }
+
         private static object _lock = new object();
         private int _runTimes = 0;
-        private DateTime _nexTime;
+        private DateTime _nextRunTime;
         private Timer _timer;
 
         public BaseDownloader Downloader { get; }
@@ -22,8 +35,6 @@ namespace Crawler.Core
         public DefaultProcessor Processor { get; }
         public DefaultSchduler Schduler { get; }
 
-
-        public static Config Config { get; private set; }
 
         ~Crawler()
         {
@@ -45,14 +56,14 @@ namespace Crawler.Core
             Config = c;
             Logger = LogManager.GetLogger(Config.Name);
             Logger.Info(c.ToString());
-            _nexTime = Config.RepeatAt;
-
-            Pipeline = new MySqlPipline();
+            _nextRunTime = Config.RepeatAt;
+            //todo 从配置文件得到服务器配置
+            Pipeline = new MySqlPipline(Config.MysqlConString);
 
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
             Logger.Info("配置完成,等待运行时间:" + Config.RepeatAt);
-            Schduler.AddScanUrl(Config.ScanUrls);
+
         }
 
         public void Start()
@@ -62,8 +73,10 @@ namespace Crawler.Core
 
         private void OnTimer(object o)
         {
-            if (DateTime.Now < _nexTime) return;
-            Logger.Info($"到了运行时间{_nexTime},启动主线程中...");
+            if (DateTime.Now < _nextRunTime) return;
+            Logger.Info($"到了运行时间{_nextRunTime},启动主线程中...");
+            CurStartTime = DateTime.Now;
+            Schduler.Reset();
             new Thread(Run).Start();
             _runTimes++;
 
@@ -76,8 +89,8 @@ namespace Crawler.Core
             var sw = new Stopwatch();
             sw.Start();
             BeforeCrawl?.Invoke();
-
-
+            Schduler.AddScanUrl(Config.ScanUrls);
+            
             Logger.Info($"启动{Config.ThreadNum}个线程");
             for (var i = 0; i < Config.ThreadNum; i++)
             {
@@ -108,24 +121,24 @@ namespace Crawler.Core
                     }
                     return;
                 case RepeatWhenEver.hour:
-                    _nexTime = _nexTime.AddHours(1);
+                    _nextRunTime = _nextRunTime.AddHours(1);
                     break;
                 case RepeatWhenEver.day:
-                    _nexTime = _nexTime.AddDays(1);
+                    _nextRunTime = _nextRunTime.AddDays(1);
                     break;
                 case RepeatWhenEver.week:
-                    _nexTime = _nexTime.AddDays(7);
+                    _nextRunTime = _nextRunTime.AddDays(7);
                     break;
                 case RepeatWhenEver.month:
-                    _nexTime = _nexTime.AddMonths(1);
+                    _nextRunTime = _nextRunTime.AddMonths(1);
                     break;
                 case RepeatWhenEver.min:
-                    _nexTime = _nexTime.AddMinutes(1);
+                    _nextRunTime = _nextRunTime.AddMinutes(1);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            Logger.Info($"下次运行时间:{_nexTime}");
+            Logger.Info($"下次运行时间:{_nextRunTime}");
         }
 
 

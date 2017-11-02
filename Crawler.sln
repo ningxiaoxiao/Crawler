@@ -16,6 +16,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "panda", "panda\panda.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "douyu", "douyu\douyu.csproj", "{B8FCD4A1-6860-460B-BD22-147D83097B12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "huya", "huya\huya.csproj", "{BC04B5FD-28CC-4C73-9AB8-D55A0EC39231}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2F97C354-D163-418A-8380-71101FE46F96} = {2F97C354-D163-418A-8380-71101FE46F96}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,6 +47,10 @@ Global
 		{B8FCD4A1-6860-460B-BD22-147D83097B12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8FCD4A1-6860-460B-BD22-147D83097B12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8FCD4A1-6860-460B-BD22-147D83097B12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BC04B5FD-28CC-4C73-9AB8-D55A0EC39231}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC04B5FD-28CC-4C73-9AB8-D55A0EC39231}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC04B5FD-28CC-4C73-9AB8-D55A0EC39231}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC04B5FD-28CC-4C73-9AB8-D55A0EC39231}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

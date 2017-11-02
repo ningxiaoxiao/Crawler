@@ -21,7 +21,7 @@ namespace Crawler.Core.Pipeline
         public Config Config => Crawler.Config;
 
         public const string DatabaseName = "crawler";
-        public string DataTableName => Config.Name + "ExtractResults";
+        public string DataTableName => Config.Name + "_ExtractResults";
 
         public void Handle(Page p)
         {
@@ -43,7 +43,7 @@ namespace Crawler.Core.Pipeline
 
 
 
-        public MySqlPipline(string sqlcon = "Data Source='localhost';User Id='root';Password='123456';charset='utf8';")
+        public MySqlPipline(string sqlcon)
         {
             _sqlConString = sqlcon;
 
@@ -99,7 +99,7 @@ namespace Crawler.Core.Pipeline
                 }
                 var cols = Config.Fields.Aggregate(string.Empty, (current, field) => current + $"{field.Name} {field.SqlType} ,");
 
-                cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,{cols + "PRIMARY KEY (id)"})", mySqlConnection);
+                cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,cname text,{cols}  PRIMARY KEY (id))", mySqlConnection);
                 cmd.ExecuteNonQuery();
             }
             catch (Exception e)
@@ -122,8 +122,8 @@ namespace Crawler.Core.Pipeline
 
             //建立文本
 
-            var keys = "timestamp";
-            var values = "\"" + results.Timestamp + "\"";
+            var keys = "timestamp,cname";
+            var values = $"\"{ results.Timestamp}\",\"{Config.Name}\"";
 
             foreach (var result in results)
             {

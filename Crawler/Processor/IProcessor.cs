@@ -141,7 +141,8 @@ namespace Crawler.Core.Processor
 
         protected void Extract(Page page)
         {
-
+            var results = new ExtractResults ();
+            
             foreach (var field in Config.Fields)
             {
                 try
@@ -160,7 +161,7 @@ namespace Crawler.Core.Processor
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    
+
                     Result result;
                     switch (field.Selectortype)
                     {
@@ -176,11 +177,8 @@ namespace Crawler.Core.Processor
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                    var results = new ExtractResults {result};
                    
-                    page.Results.Add(results);
-                    AfterExtractField?.Invoke(page, result);
-
+                    results.Add(result);
                 }
                 catch (Exception e)
                 {
@@ -189,6 +187,9 @@ namespace Crawler.Core.Processor
                     return;
                 }
             }
+             
+             page.Results.Add(results);
+             //AfterExtractField?.Invoke(page, result);
         }
 
         public static Result DoRegex(string source, Field field)
