@@ -75,14 +75,14 @@ namespace Crawler.Core
         public RepeatWhenEver RepeatWhen { get; set; } = RepeatWhenEver.hour;
         [JsonConverter(typeof(ChinaDateTimeConverter))]
         public DateTime RepeatAt { get; set; } = DateTime.Now + new TimeSpan(50000000);
-        public int Timeout { get; set; } = 1000;
+        public int Timeout { get; set; } = 5000;
         public string UserAgent { get; set; } = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
         /// <summary>
         /// 单个HTTP请求失败时, 可自动重试. 通过tryTimes设置单个HTTP请求的最多重复请求次数
         /// 默认值是0, 0和1都表示单个HTTP请求最多可请求一次
         /// 请求失败的情况包括: “请求过程出现异常(如, 请求超时)”和”请求返回内容为空”
         /// </summary>
-        public int TryTimes { get; set; } = 3;
+        public int TryTimes { get; set; } = 10;
         /// <summary>
         /// 设置应用是否优先爬取待爬队列中的scanUrl
         /// 默认值是false, 神箭手应用会按顺序依次爬取待爬队列中的url, 包括helperUrl, contentUrl和scanUrl

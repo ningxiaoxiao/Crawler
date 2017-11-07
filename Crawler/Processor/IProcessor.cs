@@ -196,7 +196,8 @@ namespace Crawler.Core.Processor
         {
             var r = new Regex(field.Selector);
             var m = r.Match(source);
-            if (!m.Success) throw new Exception("正则失败");
+            if (!m.Success)
+               Crawler.Logger.Error("正则失败");
             return new Result(field.Name, m.Groups[1].Value);
         }
 
@@ -211,20 +212,21 @@ namespace Crawler.Core.Processor
 
         public static Result DoJson(string source, Field field)
         {
-            JObject j;
+            
             try
             {
-                j = JObject.Parse(source);
+                var j = JObject.Parse(source);
+
+                var v = j.SelectToken(field.Selector);
+                if (v == null) return null;
+
+                return new Result(field.Name, v.Value<string>());
             }
-            catch (Exception)
+            catch 
             {
-                throw new Exception("解析出现问题:" +field);
+                Crawler.Logger.Error("json解析出现问题:" +field);
             }
-
-            var v = j.SelectToken(field.Selector);
-            if (v == null) return null;
-
-            return new Result(field.Name, v.Value<string>());
+            return null;
         }
     }
 

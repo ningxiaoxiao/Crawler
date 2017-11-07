@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Crawler.Core;
-using Crawler.Core.Processor;
 using Crawler.Core.Scheduler;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 
@@ -19,14 +13,11 @@ namespace huya
 
         static void Main(string[] args)
         {
-            //https://www.douyu.com/directory/all
-            //https://www.douyu.com/directory/all?page=1&isAjax=1
-            //http://open.douyucdn.cn/api/RoomApi/room/
             #region config
             var c = new Config
             {
                 Name = "huya",
-                ScanUrls = "http://www.huya.com/cache.php?m=LiveList&do=getLiveListByPage&tagAll=0&page=1",
+                ScanUrls = "http://www.huya.com/cache.php?m=LiveList&do=getLiveListByPage&tagAll=0&page=0",
                 Domains = new[]
                 {
                     ".huya.com",
@@ -78,7 +69,7 @@ namespace huya
 
 
                 var pageSize = int.Parse(p.GetJson("$.data.pageSize"));
-                for (int i = 1; i <= pageSize; i++)
+                for (int i = 0; i < pageSize; i++)
                 {
                     p.Request.Schduler.AddUrl("http://www.huya.com/" + p.GetJson($"$.data.datas[{i}].privateHost"), p.Request.Deth + 1);
                 }
