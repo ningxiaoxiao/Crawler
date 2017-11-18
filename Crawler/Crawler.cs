@@ -186,6 +186,6 @@ namespace Crawler.Core
         ///<summary>
         /// 初始化时调用, 用来进行一些爬取前的操作, 栗如, 给所有HTTP请求添加Headers等
         /// </summary>
-        private event VoidDelegate BeforeCrawl;
+        public VoidDelegate BeforeCrawl;
     }
 }

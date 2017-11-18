@@ -203,13 +203,35 @@ namespace Crawler.Core.Processor
 
         public static Result DoHtml(string source, Field field)
         {
-            var doc = new HtmlDocument();
-            doc.LoadHtml(source);
+            try
+            {
+                var doc = new HtmlDocument();
+                doc.LoadHtml(source);
 
-            var n = doc.DocumentNode.SelectSingleNode(field.Selector);
-            return new Result(field.Name, n.InnerText);
+                var n = doc.DocumentNode.SelectSingleNode(field.Selector);
+                return new Result(field.Name, n.InnerText);
+            }
+            catch (Exception e)
+            {
+                Crawler.Logger.Warn("xpath失败");
+                return null;
+            }
+           
         }
-
+        /// <summary>
+        /// 取文本中间内容
+        /// </summary>
+        /// <param name="str">原文本</param>
+        /// <param name="leftstr">左边文本</param>
+        /// <param name="rightstr">右边文本</param>
+        /// <returns>返回中间文本内容</returns>
+        public static string Between(string str, string leftstr, string rightstr)
+        {
+            int i = str.IndexOf(leftstr) + leftstr.Length;
+            string temp = str.Substring(i, str.IndexOf(rightstr, i) - i);
+            return temp;
+        }
+      
         public static Result DoJson(string source, Field field)
         {
             
@@ -249,6 +271,11 @@ namespace Crawler.Core.Processor
         {
             Key = k;
             Value = v;
+        }
+
+        public override string ToString()
+        {
+            return $"Key:{Key},value:{Value}";
         }
     }
 
