@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using Crawler.Core.Downloader;
-using Crawler.Core.Processor;
+using CrawlerDotNet.Core.Downloader;
+using CrawlerDotNet.Core.Processor;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 
-namespace Crawler.Core
+namespace CrawlerDotNet.Core
 {
     /// <summary>
     /// 表示当前正在爬取的网页对象

@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Threading;
-using Crawler.Core.Downloader;
-using Crawler.Core.Pipeline;
-using Crawler.Core.Processor;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Downloader;
+using CrawlerDotNet.Core.Pipeline;
+using CrawlerDotNet.Core.Processor;
+using CrawlerDotNet.Core.Scheduler;
 using NLog;
 
-namespace Crawler.Core
+namespace CrawlerDotNet.Core
 {
     public sealed class Crawler
     {

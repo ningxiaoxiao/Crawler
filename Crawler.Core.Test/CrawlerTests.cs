@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text.RegularExpressions;
 
-namespace Crawler.Core.Tests
+namespace CrawlerDotNet.Core.Tests
 {
     [TestClass()]
     public class CrawlerTests

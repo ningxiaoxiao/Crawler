@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Scheduler;
 
-namespace Crawler.Core.Sample
+namespace CrawlerDotNet.Core.Sample
 {
     class Program
     {

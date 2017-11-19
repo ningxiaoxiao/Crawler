@@ -6,7 +6,7 @@ using MongoDB.Driver;
 using MySql.Data.MySqlClient;
 using NLog;
 
-namespace Crawler.Core.Pipeline
+namespace CrawlerDotNet.Core.Pipeline
 {
     public interface IPipeline
     {

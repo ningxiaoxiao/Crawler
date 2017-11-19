@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Crawler.Core.Downloader
+namespace CrawlerDotNet.Core.Downloader
 {
     /// <summary>
     /// Cookie操作帮助类

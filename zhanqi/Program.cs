@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Crawler.Core;
-using Crawler.Core.Processor;
+using CrawlerDotNet.Core;
+using CrawlerDotNet.Core.Processor;
 using Newtonsoft.Json.Linq;
 
 namespace zhanqi
 {
     class Program
     {
-        private static Crawler.Core.Crawler crawler;
+        private static CrawlerDotNet.Core.Crawler crawler;
         static void Main(string[] args)
         {
             var config = new Config
@@ -59,7 +59,7 @@ namespace zhanqi
                 RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
 
             };
-            crawler = new Crawler.Core.Crawler();
+            crawler = new CrawlerDotNet.Core.Crawler();
 
             var curPage = 1;
             crawler.BeforeCrawl = () =>
@@ -125,6 +125,7 @@ namespace zhanqi
             };
             crawler.Setup(config);
             crawler.Start();
+            
             Console.WriteLine("end");
             Console.ReadKey();
         }

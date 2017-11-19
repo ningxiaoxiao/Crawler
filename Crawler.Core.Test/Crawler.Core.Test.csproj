@@ -72,9 +72,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Crawler\Crawler.Core.csproj">
+    <ProjectReference Include="..\Crawler\CrawlerDotNet.Core.csproj">
       <Project>{2f97c354-d163-418a-8380-71101fe46f96}</Project>
-      <Name>Crawler.Core</Name>
+      <Name>CrawlerDotNet.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />

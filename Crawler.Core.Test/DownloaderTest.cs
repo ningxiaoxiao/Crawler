@@ -1,10 +1,10 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Crawler.Core.Downloader;
+using CrawlerDotNet.Core.Downloader;
 using Microsoft.VisualStudio.TestTools.UnitTesting.Logging;
 
-namespace Crawler.Core.Test
+namespace CrawlerDotNet.Core.Test
 {
     [TestClass]
     public class DownloaderTest

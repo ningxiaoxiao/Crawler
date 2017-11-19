@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Crawler.Core;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core;
+using CrawlerDotNet.Core.Scheduler;
 
 namespace douyu
 {
     class Program
     {
-        private static Crawler.Core.Crawler douyu;
+        private static CrawlerDotNet.Core.Crawler douyu;
         static void Main(string[] args)
         {
             douyuSample();
@@ -75,7 +75,7 @@ namespace douyu
                 RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
             };
             #endregion
-            douyu = new Crawler.Core.Crawler();
+            douyu = new CrawlerDotNet.Core.Crawler();
 
             douyu.Setup(c);
             douyu.Processor.OnProcessHelperPage = p =>

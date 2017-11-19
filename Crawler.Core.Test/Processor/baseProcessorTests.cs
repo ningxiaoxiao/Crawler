@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Crawler.Core.Downloader;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Downloader;
+using CrawlerDotNet.Core.Scheduler;
 
-namespace Crawler.Core.Processor.Tests
+namespace CrawlerDotNet.Core.Processor.Tests
 {
 
 

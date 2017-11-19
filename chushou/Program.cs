@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Crawler.Core;
-using Crawler.Core.Processor;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core;
+using CrawlerDotNet.Core.Processor;
+using CrawlerDotNet.Core.Scheduler;
 using Newtonsoft.Json.Linq;
 
 namespace chushou
 {
     class Program
     {
-        private static Crawler.Core.Crawler crawler;
+        private static CrawlerDotNet.Core.Crawler crawler;
         static void Main(string[] args)
         {
             var config = new Config
@@ -60,7 +60,7 @@ namespace chushou
                 RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
 
             };
-            crawler = new Crawler.Core.Crawler();
+            crawler = new CrawlerDotNet.Core.Crawler();
             string lastpoint = "";
             crawler.Processor.OnProcessScanPage = p =>
             {

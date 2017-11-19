@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace Crawler.Core
+namespace CrawlerDotNet.Core
 {
     /// <summary>
     /// options对象中定义了HTTP请求网页时可配置的参数, 以及能进行的操作, 下面会逐一介绍可调用的成员.

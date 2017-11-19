@@ -1,10 +1,10 @@
-﻿using Crawler.Core.Scheduler;
+﻿using CrawlerDotNet.Core.Scheduler;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Crawler.Core.Scheduler.Tests
+namespace CrawlerDotNet.Core.Scheduler.Tests
 {
 
     [TestClass()]

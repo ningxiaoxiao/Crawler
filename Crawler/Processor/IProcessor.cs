@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Scheduler;
 using HtmlAgilityPack;
 using Newtonsoft.Json.Linq;
 using NLog;
 
-namespace Crawler.Core.Processor
+namespace CrawlerDotNet.Core.Processor
 {
     public delegate void ResultDelegate(IEnumerable<KeyValuePair<string, dynamic>> results);
 

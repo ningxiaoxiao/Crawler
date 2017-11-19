@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Crawler.Core.Processor;
+using CrawlerDotNet.Core.Processor;
 
-namespace Crawler.Core.Pipeline.Tests
+namespace CrawlerDotNet.Core.Pipeline.Tests
 {
     [TestClass()]
     public class MangoPiplineTests

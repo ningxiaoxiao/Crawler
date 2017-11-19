@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Crawler.Core;
-using Crawler.Core.Processor;
+using CrawlerDotNet.Core;
+using CrawlerDotNet.Core.Processor;
 using Newtonsoft.Json.Linq;
 
 namespace panda
 {
     class Program
     {
-        private static Crawler.Core.Crawler crawler;
+        private static CrawlerDotNet.Core.Crawler crawler;
         static void Main(string[] args)
         {
             #region c
@@ -58,7 +58,7 @@ namespace panda
                 RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
             };
             #endregion
-            crawler = new Crawler.Core.Crawler();
+            crawler = new CrawlerDotNet.Core.Crawler();
             ////https://www.panda.tv/room_followinfo?token=&roomid=1042806&_=1509522885105
             //https://www.panda.tv/1042806
             //https://www.panda.tv/live_lists?status=2&order=person_num&token=&pageno=3&pagenum=120&_=1509525309865

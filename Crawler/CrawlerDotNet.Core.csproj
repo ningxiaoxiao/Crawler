@@ -7,8 +7,8 @@
     <ProjectGuid>{2F97C354-D163-418A-8380-71101FE46F96}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Crawler.Core</RootNamespace>
-    <AssemblyName>Crawler.Core</AssemblyName>
+    <RootNamespace>CrawlerDotNet.Core</RootNamespace>
+    <AssemblyName>CrawlerDotNet.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />

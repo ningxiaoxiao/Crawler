@@ -53,9 +53,9 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Crawler\Crawler.Core.csproj">
+    <ProjectReference Include="..\Crawler\CrawlerDotNet.Core.csproj">
       <Project>{2F97C354-D163-418A-8380-71101FE46F96}</Project>
-      <Name>Crawler.Core</Name>
+      <Name>CrawlerDotNet.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -9,7 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Crawler.Core.Downloader
+namespace CrawlerDotNet.Core.Downloader
 {
     public struct pairItem
     {

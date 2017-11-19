@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
-namespace Crawler.Core
+namespace CrawlerDotNet.Core
 {
     /// <summary>
     /// 配置类

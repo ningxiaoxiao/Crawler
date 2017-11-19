@@ -1,8 +1,8 @@
 ﻿using System;
-using Crawler.Core.Downloader;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Downloader;
+using CrawlerDotNet.Core.Scheduler;
 
-namespace Crawler.Core
+namespace CrawlerDotNet.Core
 {
     /// <summary>
     /// 请求的实体

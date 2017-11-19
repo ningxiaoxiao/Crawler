@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Net;
-using Crawler.Core.Processor;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Processor;
+using CrawlerDotNet.Core.Scheduler;
 using NLog;
 
-namespace Crawler.Core.Downloader
+namespace CrawlerDotNet.Core.Downloader
 {
     public delegate Request RequestDelegate(Request r);
 

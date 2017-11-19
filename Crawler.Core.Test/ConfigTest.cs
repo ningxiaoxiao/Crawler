@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 
-namespace Crawler.Core.Test
+namespace CrawlerDotNet.Core.Test
 {
     [TestClass]
     public class ConfigTest

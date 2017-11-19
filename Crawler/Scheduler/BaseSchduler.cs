@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using NLog;
 
-namespace Crawler.Core.Scheduler
+namespace CrawlerDotNet.Core.Scheduler
 {
     public abstract class BaseSchduler : ISchduler
     {

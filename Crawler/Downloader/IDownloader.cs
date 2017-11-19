@@ -1,9 +1,9 @@
 ﻿
-using Crawler.Core.Processor;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core.Processor;
+using CrawlerDotNet.Core.Scheduler;
 using NLog;
 
-namespace Crawler.Core.Downloader
+namespace CrawlerDotNet.Core.Downloader
 {
     /// <summary>
     /// 下载器

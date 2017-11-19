@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using Crawler.Core;
-using Crawler.Core.Scheduler;
+using CrawlerDotNet.Core;
+using CrawlerDotNet.Core.Scheduler;
 using Newtonsoft.Json.Linq;
 
 
@@ -9,7 +9,7 @@ namespace huya
 {
     class Program
     {
-        public static Crawler.Core.Crawler huya { get; private set; }
+        public static CrawlerDotNet.Core.Crawler huya { get; private set; }
 
         static void Main(string[] args)
         {
@@ -61,7 +61,7 @@ namespace huya
                 RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
             };
             #endregion
-            huya = new Crawler.Core.Crawler();
+            huya = new CrawlerDotNet.Core.Crawler();
 
             huya.Setup(c);
             huya.Processor.OnProcessHelperPage = p =>
