@@ -46,15 +46,7 @@ namespace CrawlerDotNet.Core
         {
             SkipExtractField = true;
         }
-        /// <summary>
-        /// 跳过从这个网页正文发现新的URL
-        /// </summary>
-        public bool SkipFindUrl { get; private set; }
 
-        public void SkipFind()
-        {
-            SkipFindUrl = true;
-        }
         /// <summary>
         /// 只能在afterExtractField回调函数中使用, 
         /// 用来过滤抽取项中不需要的抽取结果, 
@@ -112,5 +104,12 @@ namespace CrawlerDotNet.Core
         }
 
         public string Timestamp { get; }
+    }
+    public enum PageType
+    {
+        ScanUrl,
+        HelperUrl,
+        ContextUrl,
+
     }
 }

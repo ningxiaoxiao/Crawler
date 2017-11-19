@@ -19,7 +19,6 @@ namespace quanmin
             {
                 Name = "quanmin",
                 ScanUrls = "https://www.quanmin.tv/game/all",
-                Domains = new[] { ".quanmin.tv" },
                 Fields = new[]
                 {
                     new Field
@@ -56,7 +55,7 @@ namespace quanmin
                     }
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt =  new TimeSpan(0, 5, 0),
 
             };
             crawler = new CrawlerDotNet.Core.Crawler();
@@ -95,7 +94,6 @@ namespace quanmin
                 }
 
                 p.SkipExtract();
-                p.SkipFind();
             };
             crawler.Processor.OnProcessHelperPage = p =>
             {
@@ -109,7 +107,6 @@ namespace quanmin
                 }
 
                 p.SkipExtract();
-                p.SkipFind();
             };
 
             crawler.Setup(config);

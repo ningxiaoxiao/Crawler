@@ -74,8 +74,6 @@ namespace CrawlerDotNet.Core.Processor
                     //什么都不是的网页,跳过抽取,
                     page.SkipExtract();
                     page.SkipSaveData();
-                    page.SkipFind();
-
                     break;
             }
 
@@ -108,36 +106,10 @@ namespace CrawlerDotNet.Core.Processor
             //查看深度 如果大于最大深度,就不会向这个网页中再查找网址
             if (page.Request.Deth > Config.MaxDeth) return;
 
-
-            if (!page.SkipFindUrl)
-            {
-                Logger.Info($"启动查找");
-                var t = new Thread(FindUrl);
-                t.Start(page);
-            }
             Logger.Info($"处理结束");
         }
 
-        protected void FindUrl(object pageobj)
-        {
-
-            var page = (Page)pageobj;
-            Logger.Info($"查找新的URL开始,当前深度: " + page.Request.Deth);
-            var r = new Regex("href=\"(https?|ftp|file)://[-A-Za-z0-9+&@#/%?=~_|!:,.;]+[-A-Za-z0-9+&@#/%=~_|]");
-
-            var ms = r.Matches(page.Html);
-            foreach (Match match in ms)
-            {
-                var url = match.Value.Remove(0, 6);
-
-                if (Config.HelperUrlRegexes.IsMatch(url) || Config.ContentUrlRegexes.IsMatch(url))
-                {
-                    Logger.Info($"在[{page.Request.Url}]发现新网页[{url}]");
-                    page.Request.Schduler.AddUrl(url, PageType.ContextUrl,page.Request.Deth + 1);
-                }
-            }
-            Logger.Info($"查找新的URL结束");
-        }
+     
 
         protected void Extract(Page page)
         {

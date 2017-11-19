@@ -8,7 +8,7 @@ namespace panda
 {
     class Program
     {
-        private static CrawlerDotNet.Core.Crawler crawler;
+        private static Crawler crawler;
         static void Main(string[] args)
         {
             #region c
@@ -16,10 +16,7 @@ namespace panda
             {
                 Name = "panda",
                 ScanUrls = "https://www.panda.tv/live_lists?status=2&order=person_num&token=&pageno=1&pagenum=120",
-                Domains = new[]
-            {
-                    ".panda.tv",
-                },
+
                 ContentUrlRegexes = new Regex("live_lists"),
                 HelperUrlRegexes = new Regex("789987"),
 
@@ -54,11 +51,10 @@ namespace panda
                         Selectortype = SelectorType.JsonPath
                     }
                 },
-                RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt = new TimeSpan(0, 30, 0),
             };
             #endregion
-            crawler = new CrawlerDotNet.Core.Crawler();
+            crawler = new Crawler();
             ////https://www.panda.tv/room_followinfo?token=&roomid=1042806&_=1509522885105
             //https://www.panda.tv/1042806
             //https://www.panda.tv/live_lists?status=2&order=person_num&token=&pageno=3&pagenum=120&_=1509525309865
@@ -86,18 +82,18 @@ namespace panda
                                     "https://www.panda.tv/room_followinfo?token=&roomid=" +
                                     roominfo.SelectToken("$.id").ToString()
                             });
-                            var r= BaseProcessor.DoJson(fanspage.Html, f);
+                            var r = BaseProcessor.DoJson(fanspage.Html, f);
                             exres.Add(r);
 
                             continue;
                         }
-                      
+
 
                         var res = new Result(f.Name, roominfo.SelectToken(f.Selector).ToString());
                         exres.Add(res);
                     }
 
-                   
+
 
 
                     p.Results.Add(exres);
@@ -111,13 +107,15 @@ namespace panda
 
                 var pageconut = total / 120 + (total % 120 > 0 ? 1 : 0);
 
+#if DEBUG
+                pageconut = 1;
+#endif
 
                 for (int i = 1; i <= pageconut; i++)
                 {
                     crawler.Schduler.AddUrl($"https://www.panda.tv/live_lists?status=2&order=person_num&token=&pageno={i}&pagenum=120");
                 }
 
-                p.SkipFind();
 
 
             };

@@ -19,7 +19,6 @@ namespace chushou
             {
                 Name = "chushou",
                 ScanUrls = "https://chushou.tv/live/down-v2.htm",
-                Domains = new[] { "chushou.tv" },
                 Fields = new[]
                 {
                     new Field
@@ -57,7 +56,7 @@ namespace chushou
                     }
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt = new TimeSpan(0, 35, 0),
 
             };
             crawler = new CrawlerDotNet.Core.Crawler();

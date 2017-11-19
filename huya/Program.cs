@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Text.RegularExpressions;
-using CrawlerDotNet.Core;
-using CrawlerDotNet.Core.Scheduler;
 using Newtonsoft.Json.Linq;
-
+using CrawlerDotNet.Core;
 
 namespace huya
 {
     class Program
     {
-        public static CrawlerDotNet.Core.Crawler huya { get; private set; }
+        public static Crawler huya { get; private set; }
 
         static void Main(string[] args)
         {
@@ -18,11 +16,7 @@ namespace huya
             {
                 Name = "huya",
                 ScanUrls = "http://www.huya.com/cache.php?m=LiveList&do=getLiveListByPage&tagAll=0&page=0",
-                Domains = new[]
-                {
-                    ".huya.com",
-                    ".douyucdn.cn",
-                },
+        
                 ContentUrlRegexes = new Regex("room"),
                 HelperUrlRegexes = new Regex("page"),
 
@@ -58,10 +52,10 @@ namespace huya
                     }, 
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt =  new TimeSpan(0, 15, 0),
             };
             #endregion
-            huya = new CrawlerDotNet.Core.Crawler();
+            huya = new Crawler();
 
             huya.Setup(c);
             huya.Processor.OnProcessHelperPage = p =>
@@ -74,7 +68,6 @@ namespace huya
                     p.Request.Schduler.AddUrl("http://www.huya.com/" + p.GetJson($"$.data.datas[{i}].privateHost"), p.Request.Deth + 1);
                 }
                 p.SkipExtract();
-                p.SkipFind();
             };
             huya.Processor.OnProcessScanPage = p =>
             {
@@ -85,7 +78,6 @@ namespace huya
                     p.Request.Schduler.AddUrl("http://www.huya.com/cache.php?m=LiveList&do=getLiveListByPage&tagAll=0&page=" + i, PageType.HelperUrl, p.Request.Deth + 1);
                 }
 
-                p.SkipFind();
                 p.SkipExtract();
 
             };

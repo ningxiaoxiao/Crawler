@@ -67,23 +67,7 @@ namespace CrawlerDotNet.Core.Processor.Tests
             Assert.AreEqual("嗨氏", p.Results[0]["name"].Value);
 
         }
-        [TestMethod]
-        public void FindUrlTest()
-        {
-            // Config=new Config{ScanUrls = "http://www.cnbeta.com" };
-            var r = new HttpItem()
-            {
-                Url = "http://www.cnbeta.com",
-            };
-
-            var p = http.GetHtml(r);
-            var pg = new Page(p);
-            var s = new DefaultSchduler();
-
-            pg.Request = new Request(s);
-            FindUrl(pg);
-
-        }
+      
 
 
 

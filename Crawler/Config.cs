@@ -30,35 +30,18 @@ namespace CrawlerDotNet.Core
             return JsonConvert.DeserializeObject<Config>(jsonText);
         }
         //todo 是不是要放到别的地方?
-        public string MysqlConString{get;set;}="Data Source='localhost';User Id='root';Password='123456';";
+        public string MysqlConString { get; set; } = "Data Source='localhost';User Id='root';Password='123456';";
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
         public string Name { get; set; } = "crawler";
 
-        /// <summary>
-        /// 可以发起请求的合法域,默认是scanurls的host
-        /// </summary>
-        public string[] Domains { get; set; } = { };
 
 
-        private string _scanUrls;
         /// <summary>
         /// 起始页
         /// </summary>
-        public string ScanUrls
-        {
-            get
-            {
-                return _scanUrls;
+        public string ScanUrls { get; set; }
 
-            }
-            set
-            {
-                _scanUrls = value;
-                if (Domains.Length == 0)
-                    Domains = new[] { new Uri(ScanUrls).Host };
-            }
-        }
         /// <summary>
         /// 识别内容页正则
         /// </summary>
@@ -74,7 +57,7 @@ namespace CrawlerDotNet.Core
         [JsonConverter(typeof(StringEnumConverter))]
         public RepeatWhenEver RepeatWhen { get; set; } = RepeatWhenEver.hour;
         [JsonConverter(typeof(ChinaDateTimeConverter))]
-        public DateTime RepeatAt { get; set; } = DateTime.Now + new TimeSpan(50000000);
+        public TimeSpan RepeatAt { get; set; } = new TimeSpan(0, 0, 0, 5);
         public int Timeout { get; set; } = 5000;
         public string UserAgent { get; set; } = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
         /// <summary>

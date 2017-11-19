@@ -26,7 +26,6 @@ namespace CrawlerDotNet.Core
         public static DateTime CurStartTime { get; private set; }
 
         private static object _lock = new object();
-        private int _runTimes = 0;
         private DateTime _nextRunTime;
         private Timer _timer;
 
@@ -56,55 +55,81 @@ namespace CrawlerDotNet.Core
             Config = c;
             Logger = LogManager.GetLogger(Config.Name);
             Logger.Info(c.ToString());
-            _nextRunTime = Config.RepeatAt;
+            switch (Config.RepeatWhen)
+            {
+                case RepeatWhenEver.once:
+                    break;
+                case RepeatWhenEver.min:
+                    _nextRunTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute+1, 0) + Config.RepeatAt;
+                    break;
+                case RepeatWhenEver.hour:
+                    _nextRunTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour+1, 0, 0) + Config.RepeatAt;
+                    break;
+                case RepeatWhenEver.day:
+                    _nextRunTime = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day+1, 0, 0, 0) + Config.RepeatAt;
+                    break;
+                case RepeatWhenEver.week:
+                    break;
+                case RepeatWhenEver.month:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
             //todo 从配置文件得到服务器配置
             Pipeline = new MySqlPipline(Config.MysqlConString);
 
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
-            Logger.Info("配置完成,等待运行时间:" + Config.RepeatAt);
+            Logger.Info("配置完成,等待运行时间:" + _nextRunTime);
 
         }
 
         public void Start()
         {
             _timer = new Timer(OnTimer, null, 1000, 1000);
+            Logger.Info($"启动{Config.ThreadNum}个线程");
+            for (var i = 0; i < Config.ThreadNum; i++)
+            {
+                new Thread(Task).Start();
+            }
         }
 
         private void OnTimer(object o)
         {
+            //1s一次的事件
+
+
+
             if (DateTime.Now < _nextRunTime) return;
             Logger.Info($"到了运行时间{_nextRunTime},启动主线程中...");
-            CurStartTime = DateTime.Now;
-            Schduler.Reset();
             new Thread(Run).Start();
-            _runTimes++;
+            if (Config.RepeatWhen == RepeatWhenEver.once)
+            {
 
-            CallNextRun();
+            }
+            else
+            {
+                CallNextRun();
+            }
+
+
+
         }
 
+        public void Stop()
+        {
+            //todo 
+            _timer.Dispose();
+
+        }
         private void Run()
         {
             Logger.Info("进入主线程");
-            var sw = new Stopwatch();
-            sw.Start();
+            CurStartTime = DateTime.Now;
+            Schduler.Reset();
             BeforeCrawl?.Invoke();
             Schduler.AddScanUrl(Config.ScanUrls);
-            
-            Logger.Info($"启动{Config.ThreadNum}个线程");
-            for (var i = 0; i < Config.ThreadNum; i++)
-            {
-
-                new Thread(Task).Start();
-
-            }
-
-            sw.Stop();
-
-            Logger.Info($"启动处理线程完成 耗时:{sw.ElapsedMilliseconds}ms");
-
-
-
         }
 
         private void CallNextRun()
@@ -113,12 +138,10 @@ namespace CrawlerDotNet.Core
             switch (Config.RepeatWhen)
             {
                 case RepeatWhenEver.once:
-                    if (_runTimes > 0)
-                    {
-                        Logger.Info("运行一次后退出");
-                        _timer.Dispose();
 
-                    }
+                    Logger.Info("运行一次后退出");
+                    Stop();
+
                     return;
                 case RepeatWhenEver.hour:
                     _nextRunTime = _nextRunTime.AddHours(1);
@@ -151,32 +174,20 @@ namespace CrawlerDotNet.Core
 
                 sw.Start();
                 Request r;
-                int waittime = 0;
+
                 do
                 {
                     r = Schduler.GetNext();
                     if (r == null)
                     {
                         Thread.Sleep(1000);
-                        waittime += 1000;
-                        if (waittime >= 30000)
-                        {
-                            Logger.Info($"已经连续30秒没有得到新的请求,[{Thread.CurrentThread.ManagedThreadId}]号线程停止");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        waittime = 0;
+
                     }
                 } while (r == null);
 
                 Downloader.Download(r);
                 sw.Stop();
-                var tc = 0;
-                var twc = 0;
-                ThreadPool.GetAvailableThreads(out tc, out twc);
-                Logger.Info($"剩余:{Schduler.Left}  下载失败:{Downloader.FailCount} 解析成功:{Processor.ExtractCount} " + $"解析失败:{Processor.FailCount} 跳过解析:{Processor.SkipCount} " + $"总计:{Downloader.SuccessCount + Downloader.FailCount} " + $"用时:{sw.ElapsedMilliseconds}ms 激活线程数:{twc - tc}");
+                Logger.Info($"剩余:{Schduler.Left}  下载失败:{Downloader.FailCount} 解析成功:{Processor.ExtractCount} " + $"解析失败:{Processor.FailCount} 跳过解析:{Processor.SkipCount} " + $"总计:{Downloader.SuccessCount + Downloader.FailCount} " + $"用时:{sw.ElapsedMilliseconds}ms");
             }
         }
 

@@ -18,7 +18,6 @@ namespace longzhu
             {
                 Name = "longzhu",
                 ScanUrls = "http://api.plu.cn/tga/streams?max-results=50&start-index=0&sort-by=views&filter=0&game=0",
-                Domains = new[] { ".plu.cn", ".longzhu.com" },
                 Fields = new[]
                 {
                     new Field
@@ -55,7 +54,7 @@ namespace longzhu
                     }
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt = new TimeSpan(0, 25, 0),
 
             };
             crawler = new CrawlerDotNet.Core.Crawler();

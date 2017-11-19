@@ -39,7 +39,7 @@ namespace CrawlerDotNet.Core.Scheduler
         {
             lock (_lock)
             {
-                if (_queue.Count == 0)return null;
+                if (_queue.Count == 0) return null;
 
                 var r = _queue.Dequeue();
 
@@ -105,12 +105,9 @@ namespace CrawlerDotNet.Core.Scheduler
         public void AddCookie(string key, string value, string domain = null)
         {
             if (domain == null)
-                foreach (var d in Config.Domains)
-                {
-                    _cookies.Add(new Cookie(key, value, "/", d));
-                }
-            else
-                _cookies.Add(new Cookie(key, value, "/", domain));
+                domain = "ningxiaoxiao.com";
+
+            _cookies.Add(new Cookie(key, value, "/", domain));
 
         }
 
@@ -124,22 +121,7 @@ namespace CrawlerDotNet.Core.Scheduler
             if (!url.Contains("http"))
                 throw new Exception("没有加http or https");
 
-            var domainchcke = false;
-            foreach (var domain in Config.Domains)
-            {
-                domainchcke = url.Contains(domain);
-                if (domainchcke)
-                    break;
-
-            }
-
-            //过滤不合法域
-            if (!domainchcke)
-            {
-                Logger.Warn($"{url} 入队失败,不合法域");
-                return;
-            }
-
+        
 
             if (options == null)
             {
@@ -192,13 +174,7 @@ namespace CrawlerDotNet.Core.Scheduler
 
     }
 
-    public enum PageType
-    {
-        ScanUrl,
-        HelperUrl,
-        ContextUrl,
-
-    }
+ 
     public class DefaultSchduler : BaseSchduler
     {
 

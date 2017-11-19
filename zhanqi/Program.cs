@@ -18,7 +18,6 @@ namespace zhanqi
             {
                 Name = "zhanqi",
                 ScanUrls = "http://www.zhanqi.tv/api/static/v2.1/live/list/200/1.json",
-                Domains = new[] {".zhanqi.tv"},
                 Fields = new[]
                 {
                     new Field
@@ -56,7 +55,7 @@ namespace zhanqi
                     }
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt = DateTime.Now + new TimeSpan(0, 0, 0, 5),
+                RepeatAt =  new TimeSpan(0, 10, 0),
 
             };
             crawler = new CrawlerDotNet.Core.Crawler();
