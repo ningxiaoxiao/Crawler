@@ -75,7 +75,9 @@ namespace CrawlerDotNet.Core
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
+#if DEBUG
+            _nextRunTime=DateTime.Now;
+#endif
             //todo 从配置文件得到服务器配置
             Pipeline = new MySqlPipline(Config.MysqlConString);
 

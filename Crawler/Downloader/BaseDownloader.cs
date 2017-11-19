@@ -28,7 +28,7 @@ namespace CrawlerDotNet.Core.Downloader
         {
             if (r == null) return null;
             var http = new HttpHelper();
-            var p =(Page)http.GetHtml(r);
+            var p = (Page)http.GetHtml(r);
             p.Request = r;
 
             return p;
@@ -48,7 +48,8 @@ namespace CrawlerDotNet.Core.Downloader
             {
 
                 var failres = p.Response == null ? p.Html : p.Response.StatusDescription;
-                if (p.Response.StatusCode == HttpStatusCode.NotFound)
+
+                if (p.Response != null && p.Response.StatusCode == HttpStatusCode.NotFound)
                 {
                     //找不到的页面.去掉
                     return;
@@ -77,7 +78,7 @@ namespace CrawlerDotNet.Core.Downloader
                 beforR.Schduler.AddCookie(p.CookieCollection);
             AfterDownloadPage?.Invoke(p);
             DownloadComplete?.Invoke(p);
-            
+
         }
 
         private static string GetTimestamp(bool l = false)
