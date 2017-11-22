@@ -77,7 +77,7 @@ namespace douyu
             douyu.Processor.OnProcessHelperPage = p =>
             {
 
-                var r = new Regex("\" data-rid=\'([1-9]*)\'");
+                var r = new Regex("href=\"([\\s\\S]*?)\" title=");
                 var ms = r.Matches(p.Html);
                 foreach (Match m in ms)
                 {

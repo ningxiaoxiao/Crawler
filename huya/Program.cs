@@ -52,7 +52,7 @@ namespace huya
                     }, 
                 },
                 RepeatWhen = RepeatWhenEver.hour,
-                RepeatAt =  new TimeSpan(0, 15, 0),
+                RepeatAt =  new TimeSpan(0, 35, 0),
             };
             #endregion
             huya = new Crawler();
@@ -79,6 +79,7 @@ namespace huya
                 }
 
                 p.SkipExtract();
+                
 
             };
   
