@@ -83,6 +83,11 @@ namespace CrawlerDotNet.Core
             var v = _json.SelectToken(jpath);
             return v?.ToString();
         }
+
+        public override string ToString()
+        {
+            return $"url:{Request.Url},\r\nhtml:{Html}";
+        }
     }
     public class ExtractResults : Dictionary<string, Result>, IEnumerable<Result>
     {

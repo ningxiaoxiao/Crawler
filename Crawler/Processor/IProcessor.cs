@@ -48,7 +48,7 @@ namespace CrawlerDotNet.Core.Processor
         public VoidPageResultDelegate AfterExtractField { get; set; }
         public VoidPageDelegate OnComplete { get; set; }
         public VoidPageDelegate OnCustomExtract { get; set; }
-        
+
         public void Handle(Page page)
         {
             Logger.Info($"开始处理 {page.Request.Url}");
@@ -93,7 +93,15 @@ namespace CrawlerDotNet.Core.Processor
                 else
                 {
                     Logger.Info($"使用自定抽取");
-                    OnCustomExtract.Invoke(page);
+                    try
+                    {
+                        OnCustomExtract.Invoke(page);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.Error("自定抽取发生错误:\r\n" + e + "\r\n" + page);
+                    }
+
                 }
 
                 Logger.Info($"抽取完成");
@@ -109,12 +117,12 @@ namespace CrawlerDotNet.Core.Processor
             Logger.Info($"处理结束");
         }
 
-     
+
 
         protected void Extract(Page page)
         {
-            var results = new ExtractResults ();
-            
+            var results = new ExtractResults();
+
             foreach (var field in Config.Fields)
             {
                 try
@@ -149,7 +157,7 @@ namespace CrawlerDotNet.Core.Processor
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
-                   
+
                     results.Add(result);
                 }
                 catch (Exception e)
@@ -159,9 +167,9 @@ namespace CrawlerDotNet.Core.Processor
                     return;
                 }
             }
-             
-             page.Results.Add(results);
-             //AfterExtractField?.Invoke(page, result);
+
+            page.Results.Add(results);
+            //AfterExtractField?.Invoke(page, result);
         }
 
         public static Result DoRegex(string source, Field field)
@@ -169,7 +177,7 @@ namespace CrawlerDotNet.Core.Processor
             var r = new Regex(field.Selector);
             var m = r.Match(source);
             if (!m.Success)
-               Crawler.Logger.Error("正则失败");
+                Crawler.Logger.Error("正则失败");
             return new Result(field.Name, m.Groups[1].Value);
         }
 
@@ -188,7 +196,7 @@ namespace CrawlerDotNet.Core.Processor
                 Crawler.Logger.Warn("xpath失败");
                 return null;
             }
-           
+
         }
         /// <summary>
         /// 取文本中间内容
@@ -203,10 +211,10 @@ namespace CrawlerDotNet.Core.Processor
             string temp = str.Substring(i, str.IndexOf(rightstr, i) - i);
             return temp;
         }
-      
+
         public static Result DoJson(string source, Field field)
         {
-            
+
             try
             {
                 var j = JObject.Parse(source);
@@ -216,9 +224,9 @@ namespace CrawlerDotNet.Core.Processor
 
                 return new Result(field.Name, v.Value<string>());
             }
-            catch 
+            catch
             {
-                Crawler.Logger.Error("json解析出现问题:" +field);
+                Crawler.Logger.Error("json解析出现问题:" + field);
             }
             return null;
         }
