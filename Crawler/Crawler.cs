@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using CrawlerDotNet.Core.Downloader;
 using CrawlerDotNet.Core.Pipeline;
 using CrawlerDotNet.Core.Processor;
 using CrawlerDotNet.Core.Scheduler;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NLog;
 
 namespace CrawlerDotNet.Core
@@ -79,7 +82,8 @@ namespace CrawlerDotNet.Core
             _nextRunTime=DateTime.Now;
 #endif
             //todo 从配置文件得到服务器配置
-            Pipeline = new MySqlPipline(Config.MysqlConString);
+            ReadMysqlConfigFromFile();
+            Pipeline = new MySqlPipline();
 
             Downloader.DownloadComplete = Processor.Handle;
             Processor.OnComplete = Pipeline.Handle;
@@ -125,6 +129,15 @@ namespace CrawlerDotNet.Core
             _timer.Dispose();
 
         }
+
+        public static MysqlConfig MysqlConfig;
+
+        private void ReadMysqlConfigFromFile()
+        {
+            //读取一次mysql的配置
+            MysqlConfig = JsonConvert.DeserializeObject<MysqlConfig>(File.ReadAllText("mysqlconfig.json"));
+        }
+
         private void Run()
         {
             Logger.Info("进入主线程");
@@ -132,6 +145,8 @@ namespace CrawlerDotNet.Core
             Schduler.Reset();
             BeforeCrawl?.Invoke();
             Schduler.AddScanUrl(Config.ScanUrls);
+            ReadMysqlConfigFromFile();
+
         }
 
         private void CallNextRun()
@@ -201,4 +216,11 @@ namespace CrawlerDotNet.Core
         /// </summary>
         public VoidDelegate BeforeCrawl;
     }
+
+    public class MysqlConfig
+    {
+        public string ConString { get; set; } = "Data Source='localhost';User Id='root';Password='123456';";
+
+    }
+
 }

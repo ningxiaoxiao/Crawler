@@ -39,15 +39,13 @@ namespace CrawlerDotNet.Core.Pipeline
 
     public class MySqlPipline : BasePipeline
     {
-        private readonly string _sqlConString;
+        
 
 
 
-        public MySqlPipline(string sqlcon)
+        public MySqlPipline()
         {
-            _sqlConString = sqlcon;
-
-            var mySqlConnection = new MySqlConnection(_sqlConString);
+            var mySqlConnection = new MySqlConnection(Crawler.MysqlConfig.ConString);
             try
             {
                 mySqlConnection.Open();
@@ -115,7 +113,7 @@ namespace CrawlerDotNet.Core.Pipeline
         public override void OnHandel(ExtractResults results)
         {
 
-            var con = new MySqlConnection(_sqlConString);
+            var con = new MySqlConnection(Crawler.MysqlConfig.ConString);
             con.Open();
             con.ChangeDatabase(DatabaseName);
             var cmd = new MySqlCommand { Connection = con };

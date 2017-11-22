@@ -191,7 +191,7 @@ namespace CrawlerDotNet.Core.Processor
                 var n = doc.DocumentNode.SelectSingleNode(field.Selector);
                 return new Result(field.Name, n.InnerText);
             }
-            catch (Exception e)
+            catch
             {
                 Crawler.Logger.Warn("xpath失败");
                 return null;

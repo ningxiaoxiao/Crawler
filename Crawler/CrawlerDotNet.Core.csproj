@@ -94,6 +94,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="packages.config" />
+    <None Include="mysqlconfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="tomysql.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

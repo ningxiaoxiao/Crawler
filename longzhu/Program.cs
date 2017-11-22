@@ -57,13 +57,9 @@ namespace longzhu
                 RepeatAt = new TimeSpan(0, 25, 0),
 
             };
-            crawler = new CrawlerDotNet.Core.Crawler();
+            crawler = new Crawler();
 
-            var curPage = 1;
-            crawler.BeforeCrawl = () =>
-            {
-                curPage = 1;
-            };
+          
 
             crawler.Downloader.AfterDownloadPage = p =>
             {

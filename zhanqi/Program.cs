@@ -50,6 +50,12 @@ namespace zhanqi
                     new Field
                     {
                         Name = "cate",
+                        Selector = "$.newGameName",
+                        Selectortype = SelectorType.JsonPath
+                    },
+                    new Field
+                    {
+                        Name = "childcate",
                         Selector = "$.gameName",
                         Selectortype = SelectorType.JsonPath
                     }

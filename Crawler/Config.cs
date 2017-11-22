@@ -29,8 +29,6 @@ namespace CrawlerDotNet.Core
         {
             return JsonConvert.DeserializeObject<Config>(jsonText);
         }
-        //todo 是不是要放到别的地方?
-        public string MysqlConString { get; set; } = "Data Source='localhost';User Id='root';Password='123456';";
         public bool ChangeProxyEveryPage => false;
         public bool EnableJs => true;
         public string Name { get; set; } = "crawler";
