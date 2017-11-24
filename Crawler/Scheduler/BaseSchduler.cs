@@ -144,7 +144,7 @@ namespace CrawlerDotNet.Core.Scheduler
                     options.Headers
                 },
                 CookieCollection = _cookies.GetCookies(new Uri(url)),
-
+                LeftTryTimes = Config.TryTimes,
             };
             r.SetType(type);
             AddRequest(r);

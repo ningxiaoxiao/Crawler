@@ -29,7 +29,7 @@ namespace CrawlerDotNet.Core
         /// <summary>
         /// 剩余尝试下载次数
         /// </summary>
-        public int LeftTryTimes { get; set; } = 3;
+        public int LeftTryTimes { get; set; } 
         public static bool operator ==(Request a, Request b)
         {
             if (Equals(a, null) && Equals(b, null))

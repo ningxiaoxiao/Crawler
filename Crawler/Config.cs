@@ -56,7 +56,7 @@ namespace CrawlerDotNet.Core
         public RepeatWhenEver RepeatWhen { get; set; } = RepeatWhenEver.hour;
         [JsonConverter(typeof(ChinaDateTimeConverter))]
         public TimeSpan RepeatAt { get; set; } = new TimeSpan(0, 0, 0, 5);
-        public int Timeout { get; set; } = 5000;
+        public int Timeout { get; set; } = 10000;
         public string UserAgent { get; set; } = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
         /// <summary>
         /// 单个HTTP请求失败时, 可自动重试. 通过tryTimes设置单个HTTP请求的最多重复请求次数
