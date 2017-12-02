@@ -30,7 +30,6 @@ namespace CrawlerDotNet.Core.Downloader
             var http = new HttpHelper();
             var p = (Page)http.GetHtml(r);
             p.Request = r;
-
             return p;
         }
         public void Download(Request r)
@@ -54,11 +53,12 @@ namespace CrawlerDotNet.Core.Downloader
                     //找不到的页面.去掉
                     return;
                 }
+
                 if (r.LeftTryTimes > 0)
                 {
                     Logger.Warn($"下载 {p.Request.Url} 失败,原因:{failres},剩余重试次数:{r.LeftTryTimes}");
 
-                    p.Request.Schduler.AddRequest(r);
+                    Crawler.inst.Schduler.AddRequest(r);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace CrawlerDotNet.Core.Downloader
 
             //把p的cookie存到总cookie中去
             if (p.CookieCollection.Count > 0)
-                beforR.Schduler.AddCookie(p.CookieCollection);
+                Crawler.inst.Schduler.AddCookie(p.CookieCollection);
             AfterDownloadPage?.Invoke(p);
             DownloadComplete?.Invoke(p);
 

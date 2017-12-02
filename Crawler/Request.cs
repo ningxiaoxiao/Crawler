@@ -10,20 +10,12 @@ namespace CrawlerDotNet.Core
     public class Request : HttpItem
     {
         public PageType Type { get; private set; }
-        //todo 去掉从这里使用调度器
-        public Request(ISchduler schduler)
-        {
-            Schduler = schduler;
-        }
 
         public void SetType(PageType t)
         {
             Type = t;
         }
-        /// <summary>
-        /// 调度器
-        /// </summary>
-        public ISchduler Schduler { get; }
+
 
         public int Deth { get; set; } = 0;
         /// <summary>

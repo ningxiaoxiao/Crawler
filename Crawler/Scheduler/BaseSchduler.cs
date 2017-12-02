@@ -130,7 +130,7 @@ namespace CrawlerDotNet.Core.Scheduler
 
 
 
-            var r = new Request(this)
+            var r = new Request
             {
                 Method = options.Method,
                 Url = url,

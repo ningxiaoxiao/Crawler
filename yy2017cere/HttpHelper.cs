@@ -9,7 +9,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CrawlerDotNet.Core.Downloader
+namespace yy2017cere
 {
     public struct pairItem
     {
@@ -387,7 +387,7 @@ namespace CrawlerDotNet.Core.Downloader
         public HttpResult GetHtml(HttpItem item)
         {
             //返回参数
-            var result = new Page();
+            var result = new HttpResult();
             try
             {
                 //准备参数
@@ -433,7 +433,7 @@ namespace CrawlerDotNet.Core.Downloader
                 result.Html = ex.Message;
             }
             if (item.IsToLower) result.Html = result.Html.ToLower();
-            result.Response = _response;
+            
             return result;
         }
         #endregion

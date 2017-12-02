@@ -14,6 +14,7 @@ namespace CrawlerDotNet.Core
 {
     public sealed class Crawler
     {
+        public static Crawler inst { get; private set; }
         /// <summary>
         /// 全局配置
         /// </summary>
@@ -48,8 +49,7 @@ namespace CrawlerDotNet.Core
             Downloader = new BaseDownloader();
             Schduler = new DefaultSchduler();
             Processor = new DefaultProcessor();
-
-
+            inst = this;
         }
         public void Setup(Config c)
         {

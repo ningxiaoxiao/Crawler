@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.7
+VisualStudioVersion = 15.0.27004.2002
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrawlerDotNet.Core", "Crawler\CrawlerDotNet.Core.csproj", "{2F97C354-D163-418A-8380-71101FE46F96}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "quanmin", "quanmin\quanmin.csproj", "{4C3D73FA-5DEF-4F2B-9CDC-AF8326651A0B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chushou", "chushou\chushou.csproj", "{0951EA1A-295B-4B63-AF91-3F3856CCB821}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "yy2017cere", "yy2017cere\yy2017cere.csproj", "{8A46F1B9-4BD1-4A5D-BCD4-BFC6E6744F2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -75,6 +77,10 @@ Global
 		{0951EA1A-295B-4B63-AF91-3F3856CCB821}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0951EA1A-295B-4B63-AF91-3F3856CCB821}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0951EA1A-295B-4B63-AF91-3F3856CCB821}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A46F1B9-4BD1-4A5D-BCD4-BFC6E6744F2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A46F1B9-4BD1-4A5D-BCD4-BFC6E6744F2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A46F1B9-4BD1-4A5D-BCD4-BFC6E6744F2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A46F1B9-4BD1-4A5D-BCD4-BFC6E6744F2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
