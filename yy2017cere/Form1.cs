@@ -30,69 +30,11 @@ namespace yy2017cere
         private void Form1_Load(object sender, EventArgs e)
         {
             startupdata();
-            setupmysql();
+
         }
 
-        private void setupmysql()
-        {
-            var mySqlConnection = new MySqlConnection(ConString);
-            try
-            {
-                mySqlConnection.Open();
-            }
-            catch (Exception e)
-            {
-                throw e;
-            }
-
-
-            try
-            {
-                mySqlConnection.ChangeDatabase(DatabaseName);
-            }
-            catch
-            {
-                logger.Info("更改数据库到[" + DatabaseName + "]失败,开始新建数据库");
-                try
-                {
-                    var c = new MySqlCommand("CREATE DATABASE " + DatabaseName, mySqlConnection);
-                    c.ExecuteNonQuery();
-                }
-                catch
-                {
-                    throw new Exception("无法创建数据库");
-                }
-                mySqlConnection.ChangeDatabase(DatabaseName);
-                logger.Info("自动新建数据库完成:" + DatabaseName);
-            }
-            var cmd = new MySqlCommand("show tables", mySqlConnection);
-            var tabels = cmd.ExecuteReader();
-            var haveTable = false;
-            while (tabels.Read())
-            {
-                var tablename = tabels.GetString(0);
-                if (tablename.ToLower() != DataTableName.ToLower()) continue;
-                haveTable = true;
-                break;
-            }
-            tabels.Close();
-            if (haveTable) return;
-            try
-            {
-                logger.Info("没有表[" + DataTableName + "]新建中...");
-
-
-                cmd = new MySqlCommand($"CREATE TABLE {DataTableName} (id INT NOT NULL AUTO_INCREMENT,timestamp TIMESTAMP,`rank`  int NULL ,`nick`  text NULL ,`islive`  int NULL ,`number`  int NULL ,`cid`  text NULL ,`yy`  text NULL ,`room`  text NULL , PRIMARY KEY (id))", mySqlConnection);
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception e)
-            {
-
-                throw new Exception("表[" + DataTableName + "]新建失败:\r\n" + e);
-            }
-
-            logger.Info("表[" + DataTableName + "]新建成功");
-        }
+        private string phase = "1";
+        private string round = "1";
 
         private string curYY;
 
@@ -101,7 +43,7 @@ namespace yy2017cere
             var http = new HttpHelper();
             var item = new HttpItem
             {
-                Url = "http://actgw-static.yy.com/getUnionFeatsTotalRank/?callback=getUnionFeatsTotalRank&data={\"__yyp_max__\":190,\"__yyp_min__\":1607,\"num\":500,\"actid\":20171201,\"extendInfo\":{\"phase\":\"1\",\"round\":\"1\",\"channelId\":\"" + cid + "\",\"terminal\":\"4\"},\"type\":15}&_=1512098004532",
+                Url = "http://actgw-static.yy.com/getUnionFeatsTotalRank/?callback=getUnionFeatsTotalRank&data={\"__yyp_max__\":190,\"__yyp_min__\":1607,\"num\":500,\"actid\":20171201,\"extendInfo\":{\"phase\":\"" + phase + "\",\"round\":\"" + round + "\",\"channelId\":\"" + cid + "\",\"terminal\":\"4\"},\"type\":15}&_=1512098004532",
                 Method = "GET",
 
             };
@@ -117,6 +59,28 @@ namespace yy2017cere
         {
             return getInfo(cid.ToString());
         }
+
+        private void getCurRound()
+        {
+            var http = new HttpHelper();
+            var item = new HttpItem
+            {
+                Url = "http://actgw-static.yy.com/getCurrPhaseAndRound1/?callback=getCurrPhaseAndRound1&data={\"__yyp_max__\":190,\"__yyp_min__\":1607,\"num\":10,\"actid\":20171201,\"extendInfo\":{},\"type\":0}&_=1512280191502",
+                Method = "GET",
+
+            };
+
+
+            var html = http.GetHtml(item).Html;
+
+            html = html.Replace("getCurrPhaseAndRound1(", string.Empty);
+            html = html.Replace(");", string.Empty);
+            var json = JObject.Parse(html);
+            phase = json["extendInfo"]["cCurrphase"].Value<string>();
+            round = json["extendInfo"]["cCurround"].Value<string>();
+            toolStripLabel2.Text = $"phase:{phase},round:{round}";
+        }
+
         private void updata()
         {
             var sw = new Stopwatch();
@@ -125,7 +89,7 @@ namespace yy2017cere
             listView1.Items.Clear();
 
             MySqlConnection con = null;
-            string Timestamp = null;
+            string timestamp = null;
 
             MySqlTransaction tran = null;
 
@@ -133,11 +97,11 @@ namespace yy2017cere
             {
                 con = new MySqlConnection(ConString);
                 con.Open();
-                Timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 tran = con.BeginTransaction();
             }
 
-
+            getCurRound();
 
             foreach (string cid in checkedListBox1.CheckedItems)
             {
@@ -173,20 +137,25 @@ namespace yy2017cere
                     lvi.SubItems.Add(cid);
                     lvi.SubItems.Add(yy);
                     lvi.SubItems.Add(shortroom);
+                    lvi.SubItems.Add(round);
+                    lvi.SubItems.Add(phase);
 
                     lvi.Tag = yy;
                     listView1.Items.Add(lvi);
 
                     if (checkBox1.Checked)
                     {
-                        var keys = "timestamp,rank,nick,islive,number,cid,yy";
-                        var values = $"\"{Timestamp}\"";
+                        var keys = "timestamp,rank,nick,islive,number,cid,yy,round,phase";
+                        var values = $"\"{timestamp}\"";
                         values += $",\"{rank}\"";
                         values += $",\"{nick}\"";
                         values += $",\"{chid["islive"].Value<string>()}\"";
                         values += $",\"{num}\"";
                         values += $",\"{cid}\"";
                         values += $",\"{yy}\"";
+                        values += $",\"{round}\"";
+                        values += $",\"{phase}\"";
+
                         var cmd = con.CreateCommand();
                         cmd.Transaction = tran;
                         cmd.CommandText = $"INSERT INTO {DataTableName} ({keys}) VALUES({values});";
